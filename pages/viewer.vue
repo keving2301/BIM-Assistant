@@ -1,5 +1,4 @@
 <template>
-  <client-only>
     <div class="forgeViewer overflow-hidden" style="background: white !important;">
 
       <!--Viewer Navbar-->
@@ -172,7 +171,6 @@
         </div>
       </div>
     </div>
-  </client-only>
 </template>
 
 <script>

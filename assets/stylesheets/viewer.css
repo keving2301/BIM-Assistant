@@ -1,0 +1,31 @@
+.forgeViewer {
+    background: linear-gradient(135deg, rgba(80, 100, 131, 0.5) 0%, rgba(40, 56, 149, 0.8) 100%) no-repeat center fixed !important;
+    overflow: auto;
+    overflow-x: hidden;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+    height: 100vh;
+}
+
+ df-messenger {
+    --df-messenger-bot-message: #878fac;
+    --df-messenger-button-titlebar-color: #b8caff;
+    --df-messenger-chat-background-color: #fafafa;
+    --df-messenger-font-color: white;
+    --df-messenger-send-icon: #878fac;
+    --df-messenger-user-message: #4B7AA1;
+}
+
+a {
+    color: black;
+}
+
+.btn-group {
+    height: 13vh;
+}
+
+.nathansClass {
+    display: block;
+}

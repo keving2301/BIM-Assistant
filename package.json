@@ -1,0 +1,45 @@
+{
+	"name": "bim-assistant",
+	"scripts": {
+		"dev": "nuxt",
+		"build": "nuxt build",
+		"generate": "nuxt generate",
+		"start": "nuxt start"
+	},
+	"dependencies": {
+		"@nuxtjs/firebase": "^6.1.1",
+		"@nuxtjs/pwa": "^3.1.2",
+		"@nuxtjs/axios": "^5.12.2",
+		"@popperjs/core": "^2.5.3",
+		"bootstrap-icons": "^1.0.0",
+		"bootstrap-vue": "^2.17.3",
+		"bootstrap": "^4.5.2",
+		"cookie-universal-nuxt": "^2.1.4",
+		"core-js": "^3.6.5",
+		"cors": "^2.8.5",
+		"dialogflow": "^4.0.3",
+		"dialogflow-fulfillment": "^0.6.1",
+		"express": "^4.17.1",
+		"firebase": "^7.23.0",
+		"firebase-admin": "^9.2.0",
+		"firebase-functions": "^3.11.0",
+		"forge-apis": "^0.7.3",
+		"fs": "0.0.1-security",
+		"jquery": "^3.5.1",
+		"js-cookie": "^2.2.1",
+		"moment": "^2.29.1",
+		"net": "^1.0.2",
+		"nuxt": "^2.14.6",
+		"request": "^2.88.2",
+		"tls": "0.0.1",
+		"vue": "^2.6.12",
+		"vue-google-signin-button": "^1.0.4",
+		"vue-google-signin-button-directive": "^1.0.3",
+		"vuefire": "^2.2.4",
+		"vuex": "^3.5.1",
+		"vuex-persistedstate": "^3.1.0"
+	},
+	"devDependencies": {
+		"@nuxt/types": "^2.14.6"
+	}
+}

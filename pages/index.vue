@@ -95,19 +95,19 @@
     <!-- Third section -->
     <section class="product-owner-section">
       <div class="container">
-        <!-- <div class="product-owner">
+         <div class="product-owner">
           <div class="owner-text-box">
             <p class="pb-1 pt-3">Meet the Product Owner</p>
             <i class="icon ion-md-quote pt-3" style="font-size: 6rem"></i>
           </div>
           <div class="owner-links">
-            <img alt="Product Owner" src="">
+            <img alt="Product Owner" src="../assets/images/Xuan-Lv.jpg" height="2209" width="2209"/>
             <div class="linkedin mt-3" style="font-size: 2rem; font-family: 'Aldrich', sans-serif;">
               <a class="linkedin" href="https://www.linkedin.com/in/xuan-lv-14016140/" style="color:white"
                  target="_blank">Xuan Lv</a>
             </div>
           </div>
-        </div> -->
+        </div>
       </div>
     </section>
 

@@ -31,6 +31,8 @@ module.exports = {
         config: {
             apiKey: "AIzaSyCpHKkQlnumWZG-N3c3M7AqpUchlkYviBM",
             authDomain: "bim-virtual-assistant-kg.firebaseapp.com",
+            // Not used (no Realtime Database), but @nuxtjs/firebase 7 requires the key.
+            databaseURL: "https://bim-virtual-assistant-kg.firebaseio.com",
             projectId: "bim-virtual-assistant-kg",
             storageBucket: "bim-virtual-assistant-kg.firebasestorage.app",
             messagingSenderId: "1090616755819",

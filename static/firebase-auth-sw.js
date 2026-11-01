@@ -6,7 +6,7 @@ importScripts(
 importScripts(
   'https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js'
 )
-firebase.initializeApp({"apiKey":"AIzaSyCzGu7JgGFSoYV4jKsOafTs7S3_1jJtoVE","authDomain":"bim-va-jtrhjo.firebaseapp.com","databaseURL":"https:\u002F\u002Fbim-va-jtrhjo.firebaseio.com","projectId":"bim-va-jtrhjo","storageBucket":"bim-va-jtrhjo.appspot.com","messagingSenderId":"573839619589","appId":"1:573839619589:web:1c32dba0e7efe5ef5ace6c"})
+firebase.initializeApp({"apiKey":"AIzaSyCpHKkQlnumWZG-N3c3M7AqpUchlkYviBM","authDomain":"bim-virtual-assistant-kg.firebaseapp.com","projectId":"bim-virtual-assistant-kg","storageBucket":"bim-virtual-assistant-kg.firebasestorage.app","messagingSenderId":"1090616755819","appId":"1:1090616755819:web:e0df75516d668f2808d32e"})
 
 /**
  * Returns a promise that resolves with an ID token if available.

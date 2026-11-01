@@ -26,14 +26,15 @@ module.exports = {
         throttle: 0
     },
     firebase: {
+        // The web app of the Firebase project bim-virtual-assistant-kg (Kevin's account). These values are public by
+        // design; the data is protected by firestore.rules (each user reads and writes only their own).
         config: {
-            apiKey: "AIzaSyCzGu7JgGFSoYV4jKsOafTs7S3_1jJtoVE",
-            authDomain: "bim-va-jtrhjo.firebaseapp.com",
-            databaseURL: "https://bim-va-jtrhjo.firebaseio.com",
-            projectId: "bim-va-jtrhjo",
-            storageBucket: "bim-va-jtrhjo.appspot.com",
-            messagingSenderId: "573839619589",
-            appId: "1:573839619589:web:1c32dba0e7efe5ef5ace6c"
+            apiKey: "AIzaSyCpHKkQlnumWZG-N3c3M7AqpUchlkYviBM",
+            authDomain: "bim-virtual-assistant-kg.firebaseapp.com",
+            projectId: "bim-virtual-assistant-kg",
+            storageBucket: "bim-virtual-assistant-kg.firebasestorage.app",
+            messagingSenderId: "1090616755819",
+            appId: "1:1090616755819:web:e0df75516d668f2808d32e"
         },
         services: {
             auth: {

@@ -17,6 +17,11 @@ export default {
     viewer: { type: Object, default: null },
     index: { type: Object, default: null }
   },
+  watch: {
+    index(value) {
+      if (value && this.loaded && !this.chipsShown) this.renderChips()
+    }
+  },
   mounted() {
     const el = document.createElement('df-messenger')
     el.setAttribute('agent-id', AGENT_ID)
@@ -32,6 +37,7 @@ export default {
     })
   },
   beforeDestroy() {
+    clearTimeout(this.chipTimer)
     if (this.messenger) {
       this.messenger.removeEventListener('df-messenger-loaded', this.onLoaded)
       this.messenger.removeEventListener('df-response-received', this.onResponse)
@@ -41,10 +47,15 @@ export default {
   methods: {
     onLoaded() {
       this.messenger.renderCustomText('Hi, I am the BIM assistant. Ask me about the model open in the viewer, for example:')
-      this.renderChips()
+      this.loaded = true
+      // The questions to offer depend on what the open model holds, which is known a moment after the chat loads.
+      if (this.index) this.renderChips()
+      else this.chipTimer = setTimeout(() => !this.chipsShown && this.renderChips(), 8000)
       this.$emit('ready')
     },
     renderChips() {
+      this.chipsShown = true
+      clearTimeout(this.chipTimer)
       this.messenger.renderCustomCard([{ type: 'chips', options: suggestionsFor(this.index).map((text) => ({ text })) }])
     },
     onResponse(event) {

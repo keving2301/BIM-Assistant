@@ -11,7 +11,7 @@
         </b-button>
       </header>
 
-      <DemoNote v-if="projects" />
+      <div class="demo-slot"><DemoNote /></div>
 
       <b-alert :show="!!loadError" variant="danger" role="alert">
         {{ loadError }}
@@ -19,10 +19,12 @@
       </b-alert>
 
       <div v-if="projects === null && !loadError" class="project-grid" aria-busy="true" aria-label="Loading projects">
-        <div v-for="n in 3" :key="n" class="panel skeleton-card">
+        <div v-for="n in 2" :key="n" class="panel skeleton-card">
           <div class="skeleton-thumb" />
-          <div class="skeleton-line w-50" />
-          <div class="skeleton-line w-75" />
+          <div class="skeleton-body">
+            <div class="skeleton-line w-50" />
+            <div class="skeleton-line w-75" />
+          </div>
         </div>
       </div>
 
@@ -190,7 +192,8 @@ export default {
         const now = this.$fireStoreObj.FieldValue.serverTimestamp()
         await doc.set({ name: this.draft.name, description: this.draft.description || '', createdAt: now, updatedAt: now })
         this.createOpen = false
-        this.$bvToast.toast(`${this.draft.name} is ready for its first model.`, {
+        // On $root, so the toast outlives this page: the viewer is another layout.
+        this.$root.$bvToast.toast(`${this.draft.name} is ready for its first model.`, {
           title: 'Project created',
           variant: 'success',
           toaster: 'b-toaster-bottom-left',
@@ -263,21 +266,32 @@ export default {
 }
 
 .skeleton-card {
-  padding-bottom: 20px;
   overflow: hidden;
 }
 
 .skeleton-thumb {
   aspect-ratio: 16 / 10;
   background: #eceef3;
-  margin-bottom: 16px;
+  border-bottom: 1px solid var(--c-line);
+}
+
+/* The same height as the body of a real project card, so the cards do not grow when they arrive. */
+.skeleton-body {
+  min-height: 161px;
+  padding: 24px 20px 20px;
 }
 
 .skeleton-line {
   height: 12px;
   border-radius: 6px;
   background: #eceef3;
-  margin: 12px 20px 0;
+  margin: 0 0 14px;
+}
+
+@media (max-width: 575px) {
+  .skeleton-body {
+    min-height: 169px;
+  }
 }
 
 .optional {

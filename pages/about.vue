@@ -42,13 +42,42 @@
           <dd>Dialogflow Messenger. The agent recognizes the question, and the app answers it from the open model.</dd>
         </div>
       </dl>
+
+      <h2>Sample models</h2>
+      <p>
+        The projects in the demo account hold sample models that their authors share under open licenses. Each one is
+        used here as published, and uploaded to a project of its own.
+      </p>
+      <dl class="facts">
+        <div v-for="model in models" :key="model.name">
+          <dt>{{ model.project }}</dt>
+          <dd>
+            {{ model.name }}, {{ model.author }}, {{ model.license }}.
+            <a :href="model.url" rel="noopener">Source</a>
+          </dd>
+        </div>
+      </dl>
     </div>
   </div>
 </template>
 
 <script>
+// The models of the demo account, with the author and the license that allows showing them here.
+const SAMPLE_MODELS = [
+  {
+    project: 'Linden Court apartments',
+    name: 'AdvancedProject.ifc',
+    author: 'Andr\u00e9 Wis\u00e9n (BIM Whale sample files)',
+    license: 'MIT License',
+    url: 'https://github.com/andrewisen/bim-whale-ifc-samples'
+  }
+]
+
 export default {
   name: 'About',
+  data() {
+    return { models: SAMPLE_MODELS }
+  },
   head: {
     title: 'About'
   }

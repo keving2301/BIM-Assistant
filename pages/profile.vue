@@ -10,13 +10,10 @@
 
       <b-alert :show="!!loadError" variant="danger" role="alert">{{ loadError }}</b-alert>
 
-      <DemoNote v-if="loaded">
-        You can look at the profile and the project list. Editing the profile, the email and the password are turned
-        off here.
-      </DemoNote>
+      <div class="demo-slot"><DemoNote /></div>
 
       <div class="profile-grid">
-        <section class="panel profile-panel" aria-labelledby="details-heading">
+        <section class="panel profile-panel details-panel" :class="{ 'is-loading': !loaded }" aria-labelledby="details-heading">
           <h2 id="details-heading" class="panel-title">Your details</h2>
           <p v-if="!loaded" class="muted-line"><b-spinner small class="mr-2" />Loading your profile</p>
           <b-form v-else novalidate @submit.prevent="save">
@@ -49,7 +46,7 @@
           </b-form>
         </section>
 
-        <section class="panel profile-panel" aria-labelledby="projects-heading">
+        <section class="panel profile-panel projects-panel" :class="{ 'is-loading': projects === null }" aria-labelledby="projects-heading">
           <div class="panel-title-row">
             <h2 id="projects-heading" class="panel-title">Projects</h2>
             <nuxt-link to="/projects" class="small-link">Manage projects</nuxt-link>
@@ -196,6 +193,25 @@ export default {
 
 .profile-panel {
   padding: 24px;
+}
+
+/* While a panel loads it keeps the height it will have, so the page below it does not jump. */
+.details-panel.is-loading {
+  min-height: 509px;
+}
+
+.projects-panel.is-loading {
+  min-height: 250px;
+}
+
+@media (max-width: 575px) {
+  .details-panel.is-loading {
+    min-height: 591px;
+  }
+
+  .projects-panel.is-loading {
+    min-height: 259px;
+  }
 }
 
 .panel-title {

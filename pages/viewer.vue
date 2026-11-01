@@ -110,6 +110,18 @@
                     </button>
                   </li>
                 </ul>
+                <template v-if="extraRows.length">
+                  <h2 class="subheading">Other elements</h2>
+                  <ul class="summary-list">
+                    <li v-for="row in extraRows" :key="row.key">
+                      <span class="summary-label">{{ row.label }}</span>
+                      <span class="summary-count">{{ row.count.toLocaleString('en-US') }}</span>
+                      <button class="btn btn-link btn-sm summary-show" :aria-label="`Show only the ${row.label.toLowerCase()}`" @click="isolate(row.key)">
+                        Show
+                      </button>
+                    </li>
+                  </ul>
+                </template>
                 <b-button variant="outline-secondary" size="sm" class="mt-2" :disabled="!isolated" @click="showAll">Show all</b-button>
                 <template v-if="index.rooms.length">
                   <h2 class="subheading">Rooms</h2>
@@ -219,7 +231,7 @@ import ChatAssistant from '~/components/viewer/ChatAssistant.vue'
 import { api } from '~/utils/api'
 import { formatBytes } from '~/utils/format'
 import { ACCEPTED_FILES, fileType, isWorking, translationLabel } from '~/utils/models'
-import { buildModelIndex, SUMMARY_KINDS } from '~/utils/model-index'
+import { buildModelIndex, EXTRA_KINDS, SUMMARY_KINDS } from '~/utils/model-index'
 
 const MAX_BYTES = 150 * 1024 * 1024
 const POLL_MS = 6000
@@ -289,6 +301,10 @@ export default {
     },
     workingModel() {
       return (this.models || []).find((m) => isWorking(m.translation)) || null
+    },
+    extraRows() {
+      if (!this.index) return []
+      return EXTRA_KINDS.map((kind) => ({ key: kind.key, label: kind.label, count: (this.index.groups[kind.key] || []).length })).filter((row) => row.count)
     },
     summaryRows() {
       if (!this.index) return []

@@ -103,6 +103,25 @@ a:hover { color: var(--c-accent-hover); }
 .page-header h1 { margin: 0; font-size: 1.75rem; }
 .page-header p { margin: 4px 0 0; color: var(--c-ink-2); }
 
+.demo-slot {
+  display: contents;
+}
+
+/* The demo notice is added after the app starts. When the page is the demo account's (the head script sets the class
+   before the first paint) its room is reserved from the start, so the page does not jump when the notice appears. */
+html.is-demo .demo-slot {
+  display: block;
+  min-height: 95px;
+}
+
+@media (max-width: 767px) {
+  html.is-demo .demo-slot { min-height: 174px; }
+}
+
+@media (max-width: 575px) {
+  html.is-demo .demo-slot { min-height: 196px; }
+}
+
 .panel {
   background: var(--c-surface);
   border: 1px solid var(--c-line);
@@ -333,6 +352,32 @@ textarea.form-control { height: auto; }
   .btn-icon { width: 44px; height: 44px; }
   .navbar-toggler { min-width: 44px; min-height: 44px; }
   .dropdown-item { display: flex; align-items: center; min-height: 44px; }
+}
+
+/* Motion: one timing family for the whole app. Things enter in 200ms with an ease-out curve and leave a little faster,
+   in 150ms. Bootstrap's own transitions (modal, collapse, fade, buttons, form fields) default to 150 to 600ms, so they
+   are brought into the family here. A page fades in when the route changes. The reduced motion rule below turns all of
+   it off. */
+@media (prefers-reduced-motion: no-preference) {
+  :root {
+    --ease-in: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --ease-out: cubic-bezier(0.4, 0, 1, 1);
+  }
+
+  .btn, .form-control, .custom-select, .alert, .close, .progress-bar, .navbar-toggler, .dropdown-item {
+    transition-duration: 0.2s !important;
+    transition-timing-function: var(--ease-in);
+  }
+
+  .fade { transition: opacity 0.2s var(--ease-in) !important; }
+  .fade:not(.show) { transition-duration: 0.15s !important; transition-timing-function: var(--ease-out) !important; }
+  .modal.fade .modal-dialog { transform: translateY(-12px); transition: transform 0.2s var(--ease-in) !important; }
+  .modal.show .modal-dialog { transform: none; }
+  .collapsing { transition: height 0.2s var(--ease-in) !important; }
+  .btn:not(:disabled):not(.disabled):active { transform: translateY(1px); }
+
+  .page-enter-active { transition: opacity 0.15s ease-out !important; }
+  .page-enter { opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

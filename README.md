@@ -26,7 +26,7 @@ Live: https://bim-virtual-assistant.netlify.app
 
 ## The demo account
 
-The sign-in page shows the credentials of a demo account and a button that signs in with them. It holds invented data:
+The sign-in form opens with a demo account filled in, so a visitor only presses Sign in. It holds invented data:
 a project with an apartment block model that is already translated, and an empty one. Anyone can use it, so the server
 refuses what would use up the Autodesk free tier or change what the next visitor finds. For the demo account (its uid
 is in `netlify/lib/demo.mjs` and `firestore.rules`):

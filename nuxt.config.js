@@ -16,7 +16,17 @@ export default {
       },
       { name: 'theme-color', content: '#ffffff' }
     ],
-    link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }]
+    link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+    // Marks the page as the demo account's before it first paints (the store saves the flag at sign-in), so the room
+    // for the demo notice is already there and nothing jumps when the app starts.
+    script: [
+      {
+        hid: 'demo-flag',
+        innerHTML: "try{if(localStorage.getItem('bim-demo')==='1')document.documentElement.classList.add('is-demo')}catch(e){}",
+        type: 'text/javascript'
+      }
+    ],
+    __dangerouslyDisableSanitizersByTagID: { 'demo-flag': ['innerHTML'] }
   },
 
   css: [

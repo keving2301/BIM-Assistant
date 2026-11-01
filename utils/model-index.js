@@ -9,13 +9,32 @@ export const SUMMARY_KINDS = [
   { key: 'rooms', label: 'Rooms' }
 ]
 
+// Further kinds the summary lists only when the model has some: the structure and the mechanical systems, which
+// models of other disciplines carry (a structural model has columns and beams, a mechanical one ducts and pipes).
+export const EXTRA_KINDS = [
+  { key: 'slabs', label: 'Slabs' },
+  { key: 'columns', label: 'Columns' },
+  { key: 'beams', label: 'Beams' },
+  { key: 'footings', label: 'Footings' },
+  { key: 'segments', label: 'Ducts and pipes' },
+  { key: 'fittings', label: 'Fittings' },
+  { key: 'terminals', label: 'Terminals and fixtures' }
+]
+
 // Element kinds by category or IFC class (Revit categories look like "Revit Walls", IFC classes like "IfcWall").
 const KINDS = {
   walls: /^(revit )?walls?$|^ifcwall/i,
   doors: /^(revit )?doors?$|^ifcdoor/i,
   windows: /^(revit )?windows?$|^ifcwindow/i,
   rooms: /^(revit )?(rooms?|spaces?)$|^ifcspace/i,
-  levels: /^(revit )?levels?$|^ifcbuildingstorey/i
+  levels: /^(revit )?levels?$|^ifcbuildingstorey/i,
+  slabs: /^(revit )?(floors?|slabs?)$|^ifcslab/i,
+  columns: /^(revit )?(structural )?columns?$|^ifccolumn/i,
+  beams: /^(revit )?(structural )?(framing|beams?)$|^ifcbeam/i,
+  footings: /^(revit )?(structural )?(foundations?|footings?)$|^ifcfooting/i,
+  segments: /^(revit )?(ducts?|pipes?|flex ducts?|flex pipes?|duct segments?|pipe segments?)$|^ifcflowsegment|^ifcdistributionflowelement/i,
+  fittings: /^(revit )?(duct|pipe) fittings?$|^ifcflowfitting/i,
+  terminals: /^(revit )?(air terminals?|plumbing fixtures?|mechanical equipment)$|^ifcflowterminal/i
 }
 
 const CATEGORY_PROPS = ['Category', 'IfcClass', 'IFC Class', 'Entity', 'IfcEntity']
@@ -87,6 +106,7 @@ export async function buildModelIndex(model) {
   const results = await bulkProperties(model, ids)
 
   const groups = { walls: [], doors: [], windows: [], rooms: [] }
+  for (const { key } of EXTRA_KINDS) groups[key] = []
   const levelNames = new Set()
   const levelNodes = []
   const rooms = []

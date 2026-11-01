@@ -94,7 +94,7 @@ export function answer(intent, queryText, index) {
   }
 
   if (intent === 'SizeOfRoom') {
-    if (!index.rooms.length) return { text: 'This model has no rooms, so I cannot give a room size.' }
+    if (!index.rooms.length) return { text: 'This model has no rooms defined, so there are no floor areas to read.' }
     const room = findRoom(index, text)
     if (!room) {
       const names = index.rooms.slice(0, 12).map((r) => r.label)
@@ -121,7 +121,14 @@ export function answer(intent, queryText, index) {
     return { text: `This model has ${plural(index.levels.length, 'level')}: ${listSentence(index.levels)}.` }
   }
   const ids = index.groups[kind] || []
-  if (!ids.length) return { text: `I could not find any ${kind} in this model.` }
+  if (!ids.length) {
+    return {
+      text:
+        kind === 'rooms'
+          ? 'This model has no rooms defined, so there are no room names or floor areas to read.'
+          : `This model has no ${kind}. It may be a model of another discipline, such as the structure or the mechanical systems.`
+    }
+  }
   return {
     text: `This model has ${plural(ids.length, KIND_NAMES[kind])}. ${ids.length === 1 ? 'It is' : 'They are'} isolated in the viewer; select Show all in the panel to see the whole model again.`,
     action: { isolate: ids }

@@ -1,136 +1,100 @@
-module.exports = {
-    css: [
-        '@/assets/stylesheets/app.css'
+// Nuxt 2 static site (nuxt generate), deployed on Netlify. The server side lives in netlify/functions (Autodesk
+// Platform Services calls behind Firebase sign-in); everything here runs in the browser.
+export default {
+  target: 'static',
+
+  head: {
+    titleTemplate: (title) => (title ? `${title} | BIM Virtual Assistant` : 'BIM Virtual Assistant'),
+    htmlAttrs: { lang: 'en' },
+    meta: [
+      { charset: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      {
+        hid: 'description',
+        name: 'description',
+        content: 'Upload a building model, explore it in 3D in the browser and ask the assistant about its walls, doors, windows, levels and rooms.'
+      },
+      { name: 'theme-color', content: '#ffffff' }
     ],
-    modules: [
-        '@nuxtjs/pwa',
-        '@nuxtjs/firebase',
-        '@nuxtjs/axios',
-        'bootstrap-vue/nuxt',
-        'cookie-universal-nuxt'
+    link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }]
+  },
+
+  css: [
+    '@fontsource/ibm-plex-sans/400.css',
+    '@fontsource/ibm-plex-sans/500.css',
+    '@fontsource/ibm-plex-sans/600.css',
+    '@/assets/css/app.css'
+  ],
+
+  loading: { color: '#2b3990', height: '3px' },
+
+  components: true,
+
+  modules: ['@nuxtjs/firebase', 'bootstrap-vue/nuxt'],
+
+  // Only the bootstrap-vue parts the app uses, so the bundle does not carry the whole library and icon set.
+  bootstrapVue: {
+    icons: false,
+    componentPlugins: [
+      'NavbarPlugin',
+      'CollapsePlugin',
+      'ModalPlugin',
+      'ToastPlugin',
+      'FormPlugin',
+      'FormGroupPlugin',
+      'FormInputPlugin',
+      'FormSelectPlugin',
+      'FormTextareaPlugin',
+      'ButtonPlugin',
+      'AlertPlugin',
+      'SpinnerPlugin',
+      'ProgressPlugin',
+      'DropdownPlugin'
     ],
-    serverMiddleware: [
-        {path: '/api/token', handler: '~/api/getToken.js'},
-        {path: '/api/buckets', handler: '~/api/getBucket.js'},
-        {path: '/api/objects', handler: '~/api/getBucketObjects.js'},
-        {path: '/api/bucketDetails', handler: '~/api/getBucketDetails.js'},
-        {path: '/api/createBucket', handler: '~/api/createBucket.js'},
-        {path: '/api/deleteBucket', handler: '~/api/deleteBucket'}
-    ],
-    bootstrapVue: {
-        icons: true
+    components: [
+      'BIconCheckCircleFill',
+      'BIconChevronDown',
+      'BIconChevronLeft',
+      'BIconCloudUpload',
+      'BIconExclamationTriangleFill',
+      'BIconFolderPlus',
+      'BIconLayoutSidebar',
+      'BIconPlus',
+      'BIconThreeDots',
+      'BIconTrash'
+    ]
+  },
+
+  firebase: {
+    // The web app of the Firebase project bim-virtual-assistant-kg (Kevin's account). These values are public by
+    // design; the data is protected by firestore.rules (each user reads and writes only their own).
+    config: {
+      apiKey: 'AIzaSyCpHKkQlnumWZG-N3c3M7AqpUchlkYviBM',
+      authDomain: 'bim-virtual-assistant-kg.firebaseapp.com',
+      // Not used (no Realtime Database), but @nuxtjs/firebase requires the key.
+      databaseURL: 'https://bim-virtual-assistant-kg.firebaseio.com',
+      projectId: 'bim-virtual-assistant-kg',
+      storageBucket: 'bim-virtual-assistant-kg.firebasestorage.app',
+      messagingSenderId: '1090616755819',
+      appId: '1:1090616755819:web:e0df75516d668f2808d32e'
     },
-    loading: {
-        color: '#29d',
-        continuous: true,
-        throttle: 0
-    },
-    firebase: {
-        // The web app of the Firebase project bim-virtual-assistant-kg (Kevin's account). These values are public by
-        // design; the data is protected by firestore.rules (each user reads and writes only their own).
-        config: {
-            apiKey: "AIzaSyCpHKkQlnumWZG-N3c3M7AqpUchlkYviBM",
-            authDomain: "bim-virtual-assistant-kg.firebaseapp.com",
-            // Not used (no Realtime Database), but @nuxtjs/firebase 7 requires the key.
-            databaseURL: "https://bim-virtual-assistant-kg.firebaseio.com",
-            projectId: "bim-virtual-assistant-kg",
-            storageBucket: "bim-virtual-assistant-kg.firebasestorage.app",
-            messagingSenderId: "1090616755819",
-            appId: "1:1090616755819:web:e0df75516d668f2808d32e"
-        },
-        services: {
-            auth: {
-                persistence: 'local',
-                initialize: {
-                    onAuthStateChangedMutation: 'ON_AUTH_STATE_CHANGED_MUTATION',
-                    onAuthStateChangedAction: 'onAuthStateChangedAction'
-                },
-                ssr: true
-            },
-            firestore: {
-                memoryOnly: false,
-                static: false,
-                preload: false,
-                chunkName: process.env.NODE_ENV !== 'production' ? 'firebase-auth' : '[id]',
-                enablePersistence: true
-            }
-        }
-    },
-    pwa: {
-        meta: false,
-        icon: false,
-        workbox: {
-            importScripts: [
-                '/firebase-auth-sw.js'
-            ],
-            dev: process.env.NODE_ENV !== 'production'
-        }
-    },
-    render: {
-        bundleRenderer: {
-            runInNewContext: false
-        }
-    },
-    plugins: [
-        '@/plugins/firestore',
-        {src: '@/plugins/forge-vuer', ssr: false}
-    ],
-    head: {
-        meta: [
-            {charset: 'utf-8'},
-            {name: 'viewport', content: 'width=device-width, initial-scale=1.0, shrink-to-fit=no'},
-            {httpEquiv: 'X-UA-Compatible', content: 'IE=edge'}
-        ],
-        link: [
-            {
-                rel: 'icon',
-                type: 'image/x-icon',
-                href: 'favicon.ico'
-            },
-            {
-                rel: 'stylesheet',
-                href: 'https://unpkg.com/ionicons@4.5.10-0/dist/css/ionicons.min.css'
-            },
-            {
-                rel: 'stylesheet',
-                href: 'https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.css'
-            },
-            {
-                rel: 'stylesheet',
-                href: 'https://fonts.googleapis.com/css?family=Nunito&display=swap'
-            },
-            {
-                rel: 'stylesheet',
-                href: 'https://fonts.googleapis.com/css?family=Aldrich&display=swap'
-            }
-        ],
-        script: [
-            {
-                src: 'https://developer.api.autodesk.com/modelderivative/v2/viewers/three.min.js?v=2.7.*'
-            },
-            {
-                src: 'https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js'
-            },
-            {
-                src: 'https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1'
-            },
-            {
-                crossOrigin: 'anonymous',
-                integrity: 'sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=',
-                src: 'https://code.jquery.com/jquery-3.5.1.js'
-            },
-            {
-                crossOrigin: 'anonymous',
-                integrity: 'sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV',
-                src: 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js'
-            },
-            {
-                type: 'module',
-                src: 'https://unpkg.com/ionicons@5.1.2/dist/ionicons/ionicons.esm.js'
-            },
-            {
-                src: 'https://unpkg.com/ionicons@5.1.2/dist/ionicons/ionicons.js'
-            }
-        ]
+    services: {
+      // The module waits for the first auth state before the app starts, then dispatches the action on every change.
+      auth: {
+        persistence: 'local',
+        initialize: { onAuthStateChangedAction: 'onAuthStateChangedAction' }
+      },
+      firestore: true
     }
+  },
+
+  router: {
+    middleware: ['auth']
+  },
+
+  plugins: ['@/plugins/auth-guard.client.js'],
+
+  generate: {
+    fallback: '200.html'
+  }
 }

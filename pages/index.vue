@@ -1,584 +1,281 @@
 <template>
-  <div id="index">
-    <!-- Background pictures section -->
-    <section class="background-picture">
-      <!-- Navbar -->
-      <navbar :on_index="true"></navbar>
-      <!-- Fading carousel using Bootstrap-->
-      <div id="indexCarousel" class="carousel slide carousel-fade w-100 h-100" data-ride="carousel" data-interval="6000"
-           data-wrap="true" style="position: absolute; z-index: -999; top: 0">
-        <div class="carousel-inner">
-          <!-- First image slide -->
-          <div class="carousel-item active">
-            <img class="d-block w-100" src="../assets/images/construction.jpg" style="height: 95vh" alt="First slide">
-          </div>
-          <!-- Second image slide -->
-          <div class="carousel-item">
-            <img class="d-block w-100" src="../assets/images/house-3D-model.jpg" style="height: 95vh" alt="Second slide">
-          </div>
-          <!-- Third image slide -->
-          <div class="carousel-item">
-            <img class="d-block w-100" src="../assets/images/materials.png" style="height: 95vh" alt="Third slide">
-          </div>
-          <!-- Fourth image slide -->
-          <div class="carousel-item">
-            <img class="d-block w-100" src="../assets/images/white-3D-model.jpg" style="height: 95vh"
-                 alt="Fourth slide">
+  <div class="home">
+    <section class="hero">
+      <div class="page-container hero-grid">
+        <div class="hero-copy">
+          <h1>View building models in 3D and ask about them</h1>
+          <p class="hero-lead">
+            Upload a Revit or IFC model to a project, walk through it in the Autodesk viewer, and ask the assistant how
+            many walls, doors and windows it has, which levels it spans and how large each room is.
+          </p>
+          <div class="hero-actions">
+            <template v-if="hydrated && user.loggedIn">
+              <b-button to="/projects" variant="primary" size="lg">Open your projects</b-button>
+            </template>
+            <template v-else>
+              <b-button to="/sign_up" variant="primary" size="lg">Create an account</b-button>
+              <b-button to="/sign_in" variant="outline-secondary" size="lg">Sign in</b-button>
+            </template>
           </div>
         </div>
-      </div>
-
-      <!-- Centered text over background picture section -->
-      <div class="text-center">
-        <div class="main-message w-100">
-          <!-- Title -->
-          <h1>BIM Virtual Assistant</h1>
-          <!-- Subtitle -->
-          <h5 class="v-enter-active text-center container text-white" style="letter-spacing: 2px; font-size: 1rem; padding: 0">The
-            most advanced voice-controlled 3D model assistant</h5>
-          <!-- Demo button -->
-          <div class="w-100">
-            <!-- <button class="btn btn-outline-primary" data-target="#exampleModal" data-toggle="modal" type="button">
-              Watch Demo
-            </button> -->
-            <a class="btn" href="#" style="width: 13rem">Watch Demo</a>
-          </div>
-        </div>
+        <figure class="hero-figure">
+          <img
+            src="/images/viewer-apartment-block.jpg"
+            width="1600"
+            height="1000"
+            alt="The 3D viewer showing a seven-storey apartment block with rooftop skylights among plain massing blocks of the neighboring buildings, with the viewer toolbar along the bottom."
+          />
+          <figcaption>
+            <span class="caption-title">Apartment block, IFC</span>
+            <span class="caption-meta">{{ heroFacts }}</span>
+          </figcaption>
+        </figure>
       </div>
     </section>
 
-    <!-- Section beneath the background pictures -->
-    <section class="experience-virtual">
-      <!-- Centered text -->
-      <div class="text-center">
-        <div class="title-heading w-100 p-0" style="margin: 3.25rem 0 4.25rem 0">
-          <!-- Title -->
-          <h3>Experience</h3>
-          <h1 class="w-100">The Virtual World</h1><br>
-          <!-- Subtitle -->
-          <p>Facilitate working with 3D models by using our virtual assistant to increase your productivity.</p><br>
-        </div>
-        <!-- Descriptive cards -->
-        <div class="features-grid">
-          <!-- First card -->
-          <div class="features-grid-item virtual-assistant p-3">
-            <!-- Icon -->
-            <i class="icon ion-md-globe"></i>
-            <!-- Title -->
-            <h1>Helpful Assistant</h1>
-            <!-- Subtitle -->
-            <p style="font-size: 1.3rem ">Use our assistant to upload, view, and modify your 3D models.</p>
-          </div>
-          <!-- Second card -->
-          <div class="features-grid-item models-management p-3">
-            <!-- Icon -->
-            <i class="icon ion-md-people"></i>
-            <!-- Title -->
-            <h1>Model Management</h1>
-            <!-- Subtitle -->
-            <p style="font-size: 1.3rem">Manage your models using buckets and explore your models in 3D spaces.</p>
-          </div>
-          <!-- Third card -->
-          <div class="features-grid-item voice-control p-3">
-            <!-- Icon -->
-            <i class="icon ion-md-mic"></i>
-            <!-- Title -->
-            <h1>Voice Superpowers</h1>
-            <!-- Subtitle -->
-            <p style="font-size: 1.3rem">Query your models' properties and do more by using your voice or our convenient
-              chat feature.</p>
-          </div>
-        </div>
+    <section class="steps-section" aria-labelledby="how-it-works">
+      <div class="page-container">
+        <h2 id="how-it-works">How it works</h2>
+        <ol class="steps">
+          <li>
+            <h3>Create a project</h3>
+            <p>A project holds the models of one building. Each project gets its own storage bucket on Autodesk Platform Services.</p>
+          </li>
+          <li>
+            <h3>Upload a model</h3>
+            <p>Revit, IFC, Navisworks, DWG and other files go straight to storage, then Autodesk translates them for the browser viewer.</p>
+          </li>
+          <li>
+            <h3>Explore and ask</h3>
+            <p>Orbit, section and measure the model, check its summary, or type a question to the assistant.</p>
+          </li>
+        </ol>
       </div>
     </section>
 
-    <!-- Third section -->
-    <section class="product-owner-section">
-      <div class="container">
-         <div class="product-owner">
-          <div class="owner-text-box">
-            <p class="pb-1 pt-3">Meet the Product Owner</p>
-            <i class="icon ion-md-quote pt-3" style="font-size: 6rem"></i>
-          </div>
-          <div class="owner-links">
-            <img alt="Product Owner" src="../assets/images/Xuan-Lv.jpg" height="2209" width="2209"/>
-            <div class="linkedin mt-3" style="font-size: 2rem; font-family: 'Aldrich', sans-serif;">
-              <a class="linkedin" href="https://www.linkedin.com/in/xuan-lv-14016140/" style="color:white"
-                 target="_blank">Xuan Lv</a>
-            </div>
-          </div>
+    <section class="ask-section" aria-labelledby="what-to-ask">
+      <div class="page-container ask-grid">
+        <div>
+          <h2 id="what-to-ask">What you can ask</h2>
+          <p class="text-secondary-ink">
+            The chat runs on a Dialogflow agent. It recognizes the question; the answer is read from the model you have
+            open, so it is always about your building.
+          </p>
         </div>
+        <dl class="questions">
+          <div v-for="item in questions" :key="item.q" class="question-row">
+            <dt>{{ item.q }}</dt>
+            <dd>{{ item.a }}</dd>
+          </div>
+        </dl>
       </div>
     </section>
-
-    <!-- FAQ section -->
-    <section class="begin-adventure">
-      <div class="container">
-        <div class="title-heading pb-3">
-          <!-- Title -->
-          <h1>FAQ</h1>
-        </div>
-        <div class="row" style="padding-bottom: 2.5rem">
-          <div class="col-lg-9 mx-auto">
-            <!-- FAQ Accordion -->
-            <div id="accordionExample" class="accordion shadow">
-              <!-- First question -->
-              <div class="card">
-                <div id="headingOne" class="card-header bg-white shadow-sm border-0">
-                  <h6 class="mb-0 font-weight-bold"><a aria-controls="collapseOne" aria-expanded="false"
-                                                       class="d-block position-relative collapsed text-dark text-uppercase collapsible-link py-2"
-                                                       data-target="#collapseOne" data-toggle="collapse"
-                                                       href="#">How do I use the BIM assistant?</a></h6>
-                </div>
-                <div id="collapseOne" aria-labelledby="headingOne" class="collapse" data-parent="#accordionExample">
-                  <div class="card-body p-5">
-                    <!-- First answer -->
-                    <p class="font-weight-light m-0">It's easy! If you haven't created an account yet, go to our
-                      <nuxt-link to="/sign_up">sign up</nuxt-link>
-                      page and make an account. After that, simply create a new project, upload your 3D models, and
-                      start using our assistant!
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <!-- Second question -->
-              <div class="card">
-                <div id="headingTwo" class="card-header bg-white shadow-sm border-0">
-                  <h6 class="mb-0 font-weight-bold"><a aria-controls="collapseTwo" aria-expanded="false"
-                                                       class="d-block position-relative collapsed text-dark text-uppercase collapsible-link py-2"
-                                                       data-target="#collapseTwo" data-toggle="collapse"
-                                                       href="#">How does the BIM assistant work?</a></h6>
-                </div>
-                <div id="collapseTwo" aria-labelledby="headingTwo" class="collapse" data-parent="#accordionExample">
-                  <div class="card-body p-5">
-                    <!-- Second answer -->
-                    <p class="font-weight-light m-0">Proudly developed from the ground up with Nuxt.js and Vue.js, the
-                      BIM assistant uploads your 3D models to a secure bucket in Autodesk so you can access your
-                      projects from anywhere.</p>
-                    <br/>
-                    <p class="font-weight-light m-0">Simply <nuxt-link to="/sign_in">sign in</nuxt-link> to your account to access all of your projects.</p>
-                  </div>
-                </div>
-              </div>
-              <!-- Third question -->
-              <div class="card">
-                <div id="headingThree" class="card-header bg-white shadow-sm border-0">
-                  <h6 class="mb-0 font-weight-bold"><a aria-controls="collapseThree" aria-expanded="false"
-                                                       class="d-block position-relative collapsed text-dark text-uppercase collapsible-link py-2"
-                                                       data-target="#collapseThree" data-toggle="collapse"
-                                                       href="#">Is the BIM assistant free to use?</a></h6>
-                </div>
-                <div id="collapseThree" aria-labelledby="headingThree" class="collapse" data-parent="#accordionExample">
-                  <div class="card-body p-5">
-                    <!-- Third answer -->
-                    <p class="font-weight-light m-0">During development, the assistant will be free to use. Since it's
-                      still under construction things may change or break frequently. Rest assured, once the BIM
-                      assistant has been (mostly) developed, we will share more information with you.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Text beneath FAQ -->
-        <div class="adventure-grid text-center">
-          <!-- Left column -->
-          <div class="adventure-grid-item">
-            <p>Under construction.</p>
-          </div>
-          <!-- Right column -->
-          <div class="adventure-grid-item">
-            <p>Thanks for using the BIM assistant!</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-      <p style="font-size: 1rem">&copy; 2020 BIM Assistant. All rights reserved.</p>
-    </footer>
   </div>
 </template>
 
 <script>
-import navbar from '@/components/navbar'
-import {mapGetters} from 'vuex'
-
 export default {
-  name: 'index',
-  components: {navbar},
-  head: {
-    title: 'BIM - Index'
-  },
+  name: 'Home',
   data() {
     return {
-      google_used: false
+      hydrated: false,
+      heroFacts: '10 levels, 390 walls, 126 doors, 263 windows',
+      questions: [
+        { q: 'How many walls are there?', a: 'Counts them and isolates them in the viewer.' },
+        { q: 'How many levels are there?', a: 'Lists the levels from the lowest up.' },
+        { q: 'What is the size of room 24?', a: 'Gives its floor area and highlights it.' },
+        { q: 'What are the walls made of?', a: 'Lists the wall materials used most.' },
+        { q: 'Explode the model', a: 'Pulls the model apart so you can see its parts.' }
+      ]
     }
   },
+  head: {
+    title: null
+  },
   computed: {
-    ...mapGetters({
-      user: 'user/user'
-    })
+    user() {
+      return this.$store.state.user.user
+    }
+  },
+  mounted() {
+    this.hydrated = true
   }
 }
 </script>
 
 <style scoped>
-/* Sets image width + height */
-img {
+.hero {
+  border-bottom: 1px solid var(--c-line);
+  background: var(--c-surface);
+}
+
+.hero-grid {
+  display: grid;
+  gap: 40px;
+  padding-top: 48px;
+  padding-bottom: 56px;
+}
+
+.hero-copy h1 {
+  font-size: 2.25rem;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  max-width: 14em;
+}
+
+.hero-lead {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--c-ink-2);
+  max-width: 34em;
+  margin: 20px 0 32px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero-figure {
+  margin: 0;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #f4f5f8;
+}
+
+.hero-figure img {
+  display: block;
   width: 100%;
-  max-width: 100%;
   height: auto;
 }
 
-/* Background picture */
-.background-picture {
-  width: 100%;
-  height: 95vh;
-  background: linear-gradient(135deg, rgba(80, 100, 131, 0.5) 0%, rgba(40, 56, 149, 0.8) 100%);
-  background-size: cover;
-  position: relative;
-}
-
-.background-picture::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -5px;
-  width: 100%;
-  height: 4.7rem;
-  background: url(../assets/images/wave-large.png) center no-repeat;
-  background-size: cover;
-}
-
-/* Text over background picture */
-.main-message {
-  width: fit-content;
-  color: #fafafa;
-  text-transform: uppercase;
-  transform: translateY(20%);
-}
-
-.main-message h1 {
-  font-family: 'Aldrich', sans-serif;
-  font-size: 3.0rem;
-  margin: 1rem 0;
-}
-
-.v-enter-active {
-  animation: bounceIn 1.5s;
-  font-size: calc(12px + 0.5vw);
-}
-
-/* Animation */
-@keyframes bounceIn {
-  0% {
-    transform: scale(0.5);
-    opacity: 0
-  }
-  40% {
-    transform: scale(1.03);
-    opacity: 1
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-/* Section beneath background picture */
-.experience-virtual {
-  padding: 5rem;
-  margin-top: -70px;
-  position: relative;
-  z-index: 999999;
-}
-
-/* Title */
-.title-heading {
-  text-align: center;
-  text-transform: uppercase;
-  padding-bottom: 2rem;
-  color: rgba(0, 0, 0, .7);
-}
-
-.title-heading h3 {
-  font-size: 1.4rem;
-}
-
-.title-heading h1 {
-  font-family: 'Aldrich', sans-serif;
-  font-size: 2rem;
-  margin: 0 0 1rem;
-}
-
-.title-heading p {
-  text-transform: initial;
-  margin-bottom: 0;
-  contain: none;
-}
-
-/* Cards grid */
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
-  grid-gap: 2.5rem;
-}
-
-/* Descriptive card */
-.features-grid-item {
-  height: 25rem;
-  padding: 5rem;
-  color: #fafafa;
-  position: relative;
+.hero-figure figcaption {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 1;
-  font-size: 1rem;
-  -webkit-box-shadow: 0 10px 6px -6px #777;
-  -moz-box-shadow: 0 10px 6px -6px #777;
-  box-shadow: 0 10px 6px -6px #777;
-  border-radius: 4px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--c-line-strong);
+  background: var(--c-surface);
+  font-size: 0.8125rem;
 }
 
-.features-grid-item::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 4px;
-  background-image: linear-gradient(135deg, rgba(80, 100, 131, 0.5) 0%, rgba(40, 56, 149, 0.8) 100%);
-  z-index: -1;
+.caption-title {
+  font-weight: 600;
 }
 
-.features-grid-item i {
-  font-size: 4rem;
-  color: #fafafa;
+.caption-meta {
+  color: var(--c-muted);
+  font-variant-numeric: tabular-nums;
 }
 
-.features-grid-item h1 {
-  font-family: 'Aldrich', sans-serif;
-  font-size: 1.7rem;
-  text-transform: uppercase;
-  margin: 1rem 0;
+.steps-section {
+  padding: 64px 0 56px;
 }
 
-/* Cards background images */
-.virtual-assistant {
-  background: url("../assets/images/stars.jpg") center no-repeat;
-  background-size: cover;
-}
-
-.models-management {
-  background: url("../assets/images/hiking.jpg") center no-repeat;
-  background-size: cover;
-}
-
-.voice-control {
-  background: url("../assets/images/camping.jpg") center no-repeat;
-  background-size: cover;
-}
-
-/* Third section */
-.product-owner-section {
-  width: 100%;
-  height: 80vh;
-  background: linear-gradient(135deg, rgba(80, 100, 131, 0.5) 0%, rgba(40, 56, 149, 0.8) 100%),
-  url("../assets/images/abstract2.jpg") center no-repeat;
-  background-size: cover;
-  position: relative;
-}
-
-.product-owner-section::before {
-  content: "";
-  position: absolute;
-  top: -5px;
-  left: 0;
-  width: 100%;
-  height: 4.7rem;
-  background: url("../assets/images/wave-large-reversed.png") center no-repeat;
-  background-size: cover;
-}
-
-.product-owner {
-  width: 100%;
-  color: #fafafa;
-  position: absolute;
-  top: 60%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-
-.owner-text-box {
-  padding: 0 1.5rem;
-  margin-bottom: 0.5rem;
-  position: relative;
-}
-
-.owner-text-box i {
-  position: absolute;
-  top: -8rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 8rem;
-  color: #283895;
-  opacity: .5;
-  z-index: -1;
-}
-
-.owner-links img {
-  width: 10rem;
-  height: 10rem;
-  border-radius: 100%;
-  -webkit-box-shadow: 0 0 4.5rem 0.5rem rgba(256, 256, 256, 0.75);
-  -moz-box-shadow: 0 0 4.5rem 0.5rem rgba(256, 256, 256, 0.75);
-  box-shadow: 0 0 4.5rem 0.5rem rgba(256, 256, 256, 0.75);
-}
-
-/* FAQ Section */
-.begin-adventure {
-  margin: 2.5rem;
-}
-
-.adventure-grid {
+.steps {
+  list-style: none;
+  counter-reset: step;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
-  grid-gap: 2.5rem;
-  margin-bottom: 2rem;
+  gap: 32px;
+  margin: 32px 0 0;
+  padding: 0;
 }
 
-.adventure-grid-item p {
-  color: rgba(0, 0, 0, 0.7);
-  margin-bottom: 0;
-  font-size: 1rem;
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding-top: 20px;
+  border-top: 2px solid var(--c-ink);
 }
 
-/* Horizontal line (FAQ) */
-.collapsible-link::before {
-  content: '';
-  width: 14px;
-  height: 2px;
-  background: #333;
-  position: absolute;
-  top: calc(50% - 1px);
-  right: 1rem;
+.steps li::before {
+  content: counter(step);
   display: block;
-  transition: all 0.3s;
+  margin-bottom: 12px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--c-accent);
+  font-variant-numeric: tabular-nums;
 }
 
-/* Vertical line (FAQ) */
-.collapsible-link::after {
-  content: '';
-  width: 2px;
-  height: 14px;
-  background: #333;
-  position: absolute;
-  top: calc(50% - 7px);
-  right: calc(1rem + 6px);
-  display: block;
-  transition: all 0.3s;
+.steps h3 {
+  font-size: 1.125rem;
+  margin-bottom: 8px;
 }
 
-.collapsible-link[aria-expanded='true']::after {
-  transform: rotate(90deg) translateX(-1px);
+.steps p {
+  color: var(--c-ink-2);
+  margin: 0;
 }
 
-.collapsible-link[aria-expanded='true']::before {
-  transform: rotate(180deg);
+.ask-section {
+  padding: 56px 0 72px;
+  background: var(--c-canvas);
+  border-top: 1px solid var(--c-line);
 }
 
-/* Footer */
-footer {
-  padding: 1rem 0;
-  background-color: #7D88B5;
-  text-align: center;
-  color: white;
+.ask-grid {
+  display: grid;
+  gap: 32px;
 }
 
-footer p {
-  margin-bottom: 0;
+.questions {
+  margin: 0;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-lg);
 }
 
-/* Screen Resolution with min-width: 350px */
-@media screen and (min-width: 350px) {
-  .main-message {
-    transform: translateY(40%);
-  }
+.question-row {
+  display: grid;
+  gap: 4px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-line);
 }
 
-/* Screen Resolution with min-width: 470px */
-@media screen and (min-width: 470px) {
-  .background-picture::before {
-    height: 9.4rem;
-  }
-
-  .product-owner-section::before {
-    height: 9.4rem;
-  }
+.question-row:last-child {
+  border-bottom: 0;
 }
 
-/* Screen Resolution with min-width: 700px */
-@media screen and (min-width: 700px) {
-  .background-picture::before {
-    height: 10.7rem;
-  }
+.questions dt {
+  font-weight: 600;
+}
 
-  .main-message {
-    transform: translateY(50%);
+.questions dd {
+  margin: 0;
+  color: var(--c-ink-2);
+}
+
+@media (min-width: 768px) {
+  .hero-copy h1 {
+    font-size: 2.75rem;
   }
 
-  .title-heading h1 {
-    font-size: 2.5rem;
+  .steps {
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  .features-grid {
-    padding: 3rem;
+  .question-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 24px;
   }
 }
 
-/* Screen Resolution with min-width: 950px */
-@media screen and (min-width: 950px) {
-  .main-message h1 {
-    font-size: 3.5rem;
+@media (min-width: 992px) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: center;
+    gap: 56px;
+    padding-top: 72px;
+    padding-bottom: 80px;
   }
 
-  .product-owner-section::before {
-    height: 10.7rem;
-  }
-}
-
-/* Screen Resolution with min-width: 1200px */
-@media screen and (min-width: 1200px) {
-  .background-picture {
-    height: 95vh;
-  }
-
-  .product-owner-section::before {
-    height: 9.7rem;
-  }
-
-  .product-owner {
-    padding-top: 4rem;
-  }
-
-  .main-message h1 {
-    font-size: 4rem;
-  }
-
-  .features-grid {
-    padding: 0;
-  }
-}
-
-/* Screen Resolution with min-width: 1200px */
-@media screen and (min-width: 1600px) {
-  .product-owner-section::before {
-    height: 13.7rem;
+  .ask-grid {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    gap: 56px;
   }
 }
 </style>

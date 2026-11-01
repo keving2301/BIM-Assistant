@@ -1,287 +1,289 @@
 <template>
-  <div class="projects">
-    <section class="background-picture">
-      <navbar :on_projects="true"></navbar>
-      <div class="container main-message w-100 ">
-        <h1 class="text-center text-md-left">Projects</h1>
-        <h5 v-if="!on_delete && !on_create" class="text-center text-md-left">Here are all of your BIM projects</h5>
-        <h5 v-show="on_delete" class="text-center text-md-left">Select a project to delete forever</h5>
-        <h5 v-show="on_create" class="text-center text-md-left">Enter a name for your new project</h5>
-      </div>
-    </section>
-
-    <div class="projects-list container justify-content-center row d-flex">
-      <button v-if="!on_delete && !on_create" class="btn btn-dark mx-3 text-center" type="button"
-              v-on:click="on_create=true">Create New Project
-      </button>
-      <div v-show="on_create" class="form-group text-center align-content-center mt-3">
-        <input id="newProjectName" v-model="project_name" class="form-control" placeholder="New Project Name *"
-               required style="min-width: 25vw;" type="text">
+  <div class="app-canvas">
+    <div class="page-container">
+      <header class="page-header">
         <div>
-          <button class="btn btn-dark mx-3 text-center " style="width: 7rem" type="button"
-                  v-on:click="new_project(project_name)">Submit
-          </button>
+          <h1>Projects</h1>
+          <p>Each project holds the models of one building.</p>
+        </div>
+        <b-button v-if="projects && projects.length" variant="primary" @click="openCreate">
+          <b-icon-plus aria-hidden="true" class="mr-1" />New project
+        </b-button>
+      </header>
 
-          <button v-if="on_create && !on_delete" class="btn btn-danger mx-3 text-center" style="width: 7rem"
-                  type="button"
-                  v-on:click="on_create=false">Cancel
-          </button>
+      <b-alert :show="!!loadError" variant="danger" role="alert">
+        {{ loadError }}
+        <b-button variant="link" class="alert-link p-0 ml-2 align-baseline" @click="load">Try again</b-button>
+      </b-alert>
+
+      <div v-if="projects === null && !loadError" class="project-grid" aria-busy="true" aria-label="Loading projects">
+        <div v-for="n in 3" :key="n" class="panel skeleton-card">
+          <div class="skeleton-thumb" />
+          <div class="skeleton-line w-50" />
+          <div class="skeleton-line w-75" />
         </div>
       </div>
 
-      <button v-if="!on_delete && !on_create && project_list.length>0" class="btn btn-danger mx-3 text-center"
-              type="button" v-on:click="on_delete=true">Delete Project
-      </button>
+      <section v-else-if="projects && !projects.length" class="panel empty-state">
+        <b-icon-folder-plus class="empty-icon" aria-hidden="true" />
+        <h2>No projects yet</h2>
+        <p>Create a project, then upload a Revit, IFC or other model file to explore it in 3D and ask the assistant about it.</p>
+        <b-button variant="primary" @click="openCreate">Create a project</b-button>
+      </section>
 
-      <div v-show="on_delete" class="form-group">
-        <div v-for="(project, idx) of project_list" :key="idx">
-          <button :data-target="'#deleteConfirmModalFor' + idx"
-                  class="for-hover btn btn-danger mx-auto text-center" data-toggle="modal"
-                  type="button">
-            {{ project }}
-          </button>
-
-          <div :id="'deleteConfirmModalFor' + idx" aria-hidden="true" aria-labelledby="deleteConfirmModal"
-               class="modal fade"
-               role="dialog" style="top: 40%"
-               tabindex="-1">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 id="deleteConfirmLabel" class="modal-title">Are you sure you'd like to delete {{ project }}?</h5>
-                  <button aria-label="Close" class="close" data-dismiss="modal" type="button">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <strong class="my-auto">This action cannot be undone.</strong>
-                </div>
-                <div class="modal-footer">
-                  <button class="btn btn-secondary my-auto" data-dismiss="modal" style="width: 40% !important;"
-                          type="button">Cancel
-                  </button>
-                  <button class="btn btn-danger my-auto" data-dismiss="modal" style="width: 40% !important;"
-                          type="button" @click="delete_project(project)">Delete {{ project }}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!--          <h1 v-if="!on_create && on_delete" @click="delete_project(project)" class="for-hover btn btn-dark btn-danger mx-auto text-center">{{ project }}</h1>-->
-        </div>
-        <button v-if="!on_create && on_delete" class="btn btn-dark mx-auto text-center" type="button"
-                v-on:click="on_delete=false">Cancel
-        </button>
-      </div>
-
-      <!--Displays list of projects in form of cards-->
-      <div v-if="!on_create && !on_delete"
-           class="container align-content-center justify-content-center d-flex">
-        <div v-for="(project, idx) of project_list" :key="idx" class="card m-3 col-2">
-          <nuxt-link class="card-title w-100 h-100 font-weight-bold" to="viewer">
-            <div class="card-body">
-              <h5 class="text-center">{{ project }}</h5>
-              <hr class="border-top"/>
-              <img alt="Project Image" class="img-responsive w-100 "
-                   src="../assets/images/house-3D-model.jpg" style="border-radius: 20px"/>
-              <p class="text-muted card-text mt-3" style="font-size: 18px">Description of the project. </p>
-            </div>
-          </nuxt-link>
-
-        </div>
+      <div v-else-if="projects" class="project-grid">
+        <ProjectCard
+          v-for="project in projects"
+          :key="project.id"
+          :project="project"
+          :models="models[project.id] === undefined ? null : models[project.id]"
+          :thumbnail="thumbnails[project.id] || null"
+          @delete="confirmDelete"
+        />
       </div>
     </div>
 
+    <b-modal
+      id="create-project"
+      v-model="createOpen"
+      title="New project"
+      :ok-title="creating ? 'Creating' : 'Create project'"
+      cancel-title="Cancel"
+      cancel-variant="outline-secondary"
+      :ok-disabled="creating"
+      :cancel-disabled="creating"
+      :no-close-on-backdrop="creating"
+      centered
+      @ok.prevent="createProject"
+      @shown="$refs.projectName.focus()"
+    >
+      <b-alert :show="!!createError" variant="danger" role="alert">{{ createError }}</b-alert>
+      <b-form novalidate @submit.prevent="createProject">
+        <b-form-group label="Project name" label-for="project-name" :state="nameState" :invalid-feedback="nameError">
+          <b-form-input
+            id="project-name"
+            ref="projectName"
+            v-model.trim="draft.name"
+            maxlength="60"
+            :state="nameState"
+            @blur="draftTouched = true"
+          />
+        </b-form-group>
+        <b-form-group label-for="project-description" description="A line about the building, shown on the project card.">
+          <template #label>Description <span class="optional">(optional)</span></template>
+          <b-form-textarea id="project-description" v-model.trim="draft.description" rows="2" maxlength="200" no-resize />
+        </b-form-group>
+      </b-form>
+    </b-modal>
+
+    <b-modal
+      id="delete-project"
+      v-model="deleteOpen"
+      :title="deleting ? `Delete ${deleting.name}?` : 'Delete project?'"
+      ok-variant="danger"
+      :ok-title="deleteBusy ? 'Deleting' : 'Delete project'"
+      cancel-title="Cancel"
+      cancel-variant="outline-secondary"
+      :ok-disabled="deleteBusy"
+      :cancel-disabled="deleteBusy"
+      centered
+      @ok.prevent="deleteProject"
+    >
+      <p class="mb-0">This deletes the project, its uploaded models and their translations. It cannot be undone.</p>
+    </b-modal>
   </div>
 </template>
 
 <script>
-import navbar from '@/components/navbar'
+import { api } from '~/utils/api'
 
 export default {
-  name: 'projects',
-  components: {
-    navbar
-  },
-  head: {
-    title: 'BIM - Projects'
-  },
-  computed: {
-    user() {
-      return this.$store.state.user.user
-    }
-  },
+  name: 'Projects',
   data() {
     return {
-      project_name: '',
-      userName: '',
-      project_list: [],
-      on_create: false,
-      on_delete: false,
+      projects: null,
+      models: {},
+      thumbnails: {},
+      loadError: '',
+      createOpen: false,
+      creating: false,
+      createError: '',
+      draft: { name: '', description: '' },
+      draftTouched: false,
+      deleteOpen: false,
+      deleting: null,
+      deleteBusy: false
     }
+  },
+  head: {
+    title: 'Projects'
+  },
+  computed: {
+    uid() {
+      const data = this.$store.state.user.user.data
+      return data && data.uid
+    },
+    nameError() {
+      if (!this.draft.name) return 'Enter a project name.'
+      const taken = (this.projects || []).some((p) => p.name.toLowerCase() === this.draft.name.toLowerCase())
+      return taken ? 'You already have a project with this name.' : ''
+    },
+    nameState() {
+      return this.draftTouched && this.nameError ? false : null
+    }
+  },
+  mounted() {
+    if (this.uid) this.load()
+  },
+  beforeDestroy() {
+    Object.values(this.thumbnails).forEach((url) => URL.revokeObjectURL(url))
   },
   methods: {
-    // creates new project
-    new_project: async function () {
-      let bucketKey
-      const bucketRef = this.$fireStore.collection('userdata').doc(this.user.data.uid).collection('buckets').doc(this.project_name)
-      console.log(this.project_name)
-      await this.$axios.get(`http://localhost:3000/api/createBucket/${this.project_name}`).then(res => {
-        bucketKey = Buffer.from(res.data.body.bucketKey).toString('base64')
-      })
-      bucketRef.get().then(() => {
-        bucketRef.set({
-          bucketKey: bucketKey
-        })
-      })
-      this.on_create = false
+    collection() {
+      return this.$fireStore.collection('userdata').doc(this.uid).collection('buckets')
     },
-    //deletes an existing project
-    delete_project: async function (proj) {
-      await this.$axios.get(`http://localhost:3000/api/deleteBucket/${proj}`).then(() => {
-        this.$fireStore.collection('userdata').doc(this.user.data.uid).collection('buckets').doc(proj).delete().then(() => {
-          this.project_list.splice(1, this.project_list.indexOf(proj))
-          this.on_delete = false
-        })
-      })
-    }
-  },
-  firestore() {
-    const userdataRef = this.$fireStore.collection('userdata').doc(this.user.data.uid)
-    userdataRef.onSnapshot((docSnapshot) => {
-      this.project_list = docSnapshot.data()['projects']
-      const bucketRef = this.$fireStore.collection('userdata').doc(this.user.data.uid).collection('buckets')
-      bucketRef.onSnapshot(buckets => {
-        for (let i = 0; i < buckets.docs.length; ++i) {
-          if (!this.project_list.includes(buckets.docs[i].id)) {
-            this.project_list.push(buckets.docs[i].id)
-          }
+    async load() {
+      this.loadError = ''
+      try {
+        const snapshot = await this.collection().orderBy('createdAt', 'desc').get()
+        this.projects = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        this.projects.forEach((project) => this.loadModels(project))
+      } catch (err) {
+        console.error(err)
+        this.loadError = 'Your projects could not be loaded.'
+      }
+    },
+    async loadModels(project) {
+      try {
+        const { models } = await api(this.$fireAuth, 'models', { query: { projectId: project.id } })
+        this.$set(this.models, project.id, models)
+        const ready = models.find((m) => m.translation.status === 'success' && m.translation.hasThumbnail)
+        if (ready && !this.thumbnails[project.id]) {
+          const blob = await api(this.$fireAuth, 'thumbnail', { query: { projectId: project.id, objectKey: ready.objectKey } })
+          this.$set(this.thumbnails, project.id, URL.createObjectURL(blob))
         }
-      })
-    })
+      } catch (err) {
+        console.error(err)
+        this.$set(this.models, project.id, [])
+      }
+    },
+    openCreate() {
+      this.draft = { name: '', description: '' }
+      this.draftTouched = false
+      this.createError = ''
+      this.createOpen = true
+    },
+    async createProject() {
+      this.draftTouched = true
+      if (this.nameError || this.creating) return
+      this.creating = true
+      this.createError = ''
+      const doc = this.collection().doc()
+      try {
+        // The bucket first: the server checks the project limit before anything is saved.
+        await api(this.$fireAuth, 'projects', { method: 'POST', body: { projectId: doc.id } })
+        const now = this.$fireStoreObj.FieldValue.serverTimestamp()
+        await doc.set({ name: this.draft.name, description: this.draft.description || '', createdAt: now, updatedAt: now })
+        this.createOpen = false
+        this.$bvToast.toast(`${this.draft.name} is ready for its first model.`, {
+          title: 'Project created',
+          variant: 'success',
+          toaster: 'b-toaster-bottom-left',
+          solid: true
+        })
+        this.$router.push({ path: '/viewer', query: { project: doc.id } })
+      } catch (err) {
+        this.createError = err.message
+      } finally {
+        this.creating = false
+      }
+    },
+    confirmDelete(project) {
+      this.deleting = project
+      this.deleteOpen = true
+    },
+    async deleteProject() {
+      const project = this.deleting
+      if (!project || this.deleteBusy) return
+      this.deleteBusy = true
+      try {
+        await api(this.$fireAuth, 'projects', { method: 'DELETE', query: { projectId: project.id } })
+        await this.collection().doc(project.id).delete()
+        this.projects = this.projects.filter((p) => p.id !== project.id)
+        this.deleteOpen = false
+        this.$bvToast.toast(`${project.name} and its models were deleted.`, {
+          title: 'Project deleted',
+          toaster: 'b-toaster-bottom-left',
+          solid: true
+        })
+      } catch (err) {
+        this.$bvToast.toast(err.message, { title: 'The project was not deleted', variant: 'danger', toaster: 'b-toaster-bottom-left', solid: true })
+      } finally {
+        this.deleteBusy = false
+      }
+    }
   }
 }
 </script>
 
 <style scoped>
-
-.background-picture::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -5px;
-  width: 100%;
-  height: 4.7rem;
-  background: url(../assets/images/wave-large.png) center no-repeat;
-  background-size: cover;
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  padding-bottom: 64px;
 }
 
-.background-picture {
-  width: 100%;
-  height: 45vh;
-  background: linear-gradient(135deg, rgba(80, 100, 131, 0.5) 0%, rgba(40, 56, 149, 0.8) 100%),
-  url("../assets/images/construction.jpg") center no-repeat;
-  background-size: cover;
-  position: relative;
-}
-
-.projects-list {
+.empty-state {
+  max-width: 560px;
+  margin: 24px auto 64px;
+  padding: 48px 32px;
   text-align: center;
 }
 
-.btn {
-  width: 15rem;
+.empty-state h2 {
+  font-size: 1.25rem;
+  margin-top: 16px;
 }
 
-.btn-danger:hover {
-  background-color: #dc3545;
+.empty-state p {
+  color: var(--c-ink-2);
+  margin-bottom: 24px;
 }
 
-.for-hover:hover {
-  -webkit-animation: shake .3s ease-in-out .3s infinite alternate;
+.empty-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--c-accent);
 }
 
-.card {
-  border-radius: 10px;
-  box-shadow: 0 1px 15px 1px rgba(0, 0, 0, 0.04), 0 1px 6px rgba(0, 0, 0, 0.04);
-  border: 0;
-  transition: all .15s ease-in;
-  min-width: 250px !important;
-  min-height: 350px !important;
+.skeleton-card {
+  padding-bottom: 20px;
+  overflow: hidden;
 }
 
-.card:hover {
-  box-shadow: 0 10px 16px rgba(0, 0, 0, 0.2);
-  text-decoration: none !important;
+.skeleton-thumb {
+  aspect-ratio: 16 / 10;
+  background: #eceef3;
+  margin-bottom: 16px;
 }
 
-.card-title {
-  font-size: 1.1rem;
-  text-decoration: none !important;
-  color: black;
+.skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  background: #eceef3;
+  margin: 12px 20px 0;
 }
 
-@-webkit-keyframes shake {
-  from {
-    -webkit-transform: rotate(3deg);
-  }
-
-  to {
-    -webkit-transform: rotate(-3deg);
-    -webkit-transform-origin: center center;
-  }
+.optional {
+  color: var(--c-muted);
+  font-weight: 400;
 }
 
-
-/*Screen Resolution with min-width: 700px*/
-@media screen and (min-width: 768px) {
-
-  .background-picture::before {
-    height: 6.5rem;
-  }
-
-  .main-message {
-    transform: translateY(50%);
-  }
-}
-
-/*Screen Resolution with min-width: 950px*/
-@media screen and (min-width: 950px) {
-
-  .background-picture {
-    height: 22.7rem;
-  }
-
-  .background-picture::before {
-    height: 9.7rem;
-  }
-
-  .main-message {
-    transform: translateY(30%);
-  }
-
-  .main-message h1 {
-    font-size: 3.0rem;
-  }
-}
-
-/*Screen Resolution with min-width: 1200px*/
-@media screen and (min-width: 1100px) {
-
-  .background-picture {
-    height: 23.7rem;
-  }
-
-  .background-picture::before {
-    height: 13.7rem;
-  }
-
-  .main-message h1 {
-    font-size: 2.7rem;
-  }
-
-  .main-message h5 {
-    font-size: 1.2rem;
+@media (max-width: 575px) {
+  .project-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
 </style>

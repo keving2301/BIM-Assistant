@@ -1,164 +1,108 @@
 <template>
   <div class="about">
-    <section class="background-picture">
-      <!-- Navbar -->
-      <navbar :on_about="true"></navbar>
-      <div class="main-message w-100">
-        <!-- Title -->
-        <h1 class="text-lg-center align-middle">About</h1>
-      </div>
-    </section>
+    <div class="page-container about-container">
+      <h1>About</h1>
+      <p class="about-lead">
+        BIM Virtual Assistant is a web app for looking at building information models without desktop software. It
+        began as a school project in 2020 and was refreshed in 2026.
+      </p>
 
-    <div class="container" style="width: 85% !important">
-      <div class="row justify-content-center align-items-center">
-        <!-- First left column -->
-        <div class="col">
-          <img class="w-100" src="../assets/images/white-3D-model.jpg" alt="3D Model">
+      <h2>Building information models</h2>
+      <p>
+        A building information model (BIM) is a digital description of a building: its walls, doors, windows, floors
+        and rooms, with properties such as materials, levels and areas. Architects, engineers and builders use these
+        models to plan, design, build and manage buildings, but opening one usually takes a desktop application and
+        some training. This app puts a model in the browser and lets you ask about it in plain language.
+      </p>
+
+      <h2>How it is built</h2>
+      <dl class="facts">
+        <div>
+          <dt>Front end</dt>
+          <dd>Nuxt 2 and Vue 2 with bootstrap-vue, generated as a static site.</dd>
         </div>
-        <!-- First right column -->
-        <div class="col">
-          <p>BIM (Building Information Modelling) is an intelligent digital representation of physical and functional
-            characteristics of a building or infrastructure. It is considered the game changing innovation for the AEC
-            (Architecture, Engineering, Construction) industry boasting its operational efficiency providing insights and
-            tools to more efficiently plan, design, construct, and manage building and infrastructure.
-          </p>
+        <div>
+          <dt>Accounts and projects</dt>
+          <dd>Firebase Authentication (email and password) and Cloud Firestore. Security rules let each account read and write only its own profile and projects.</dd>
         </div>
-        <div class="w-100"></div>
-        <!-- Second left column -->
-        <div class="col">
-          <p>This is the third release of Intelligent BIM Virtual Assistant, a web application that renders 3D models and 2D
-            floor plans for BIM objects of different formats with an implemented speech recognition feature for design-based
-            queries.</p>
+        <div>
+          <dt>Model storage and translation</dt>
+          <dd>Autodesk Platform Services: each project has a storage bucket, uploads go directly to it, and the Model Derivative service translates each file for the viewer.</dd>
         </div>
-        <!-- Second right column -->
-        <div class="col">
-          <img class="w-100" src="../assets/images/constructors.png" alt="Constructors">
+        <div>
+          <dt>Server</dt>
+          <dd>Netlify Functions hold the Autodesk credentials. They check the caller's Firebase sign-in on every request, so a user only reaches their own buckets.</dd>
         </div>
-        <div class="w-100"></div>
-        <!-- Third left column -->
-        <div class="col">
-          <img class="w-100" src="../assets/images/sunset2.png" alt="Sunset">
+        <div>
+          <dt>Viewer</dt>
+          <dd>The Autodesk Viewer, version 7, with a model summary built from the model's own properties.</dd>
         </div>
-        <!-- Third right column -->
-        <div class="col">
-          <p>BIM provides essential insights to aid in efficient planning and management for infrastructure construction.
-            It still requires a learning curve for those interested in using the product, yet it can provide an easier way
-            to study models by allowing users to make verbal queries to the virtual assistant which can reply through verbal
-            messages and highlighting objects in the viewer.</p>
+        <div>
+          <dt>Assistant</dt>
+          <dd>Dialogflow Messenger. The agent recognizes the question, and the app answers it from the open model.</dd>
         </div>
-      </div>
+      </dl>
     </div>
-
-    <!-- Footer -->
-    <footer>
-      <p>&copy; 2020 BIM Assistant. All rights reserved.</p>
-    </footer>
   </div>
 </template>
 
 <script>
-import navbar from "@/components/navbar";
-
 export default {
-  name: "about",
-  components: {navbar},
+  name: 'About',
   head: {
-    title: 'BIM - About'
+    title: 'About'
   }
 }
 </script>
 
 <style scoped>
+.about-container {
+  max-width: 760px;
+  padding-top: 56px;
+  padding-bottom: 80px;
+}
+
+.about-lead {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--c-ink-2);
+  margin: 16px 0 40px;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin: 40px 0 12px;
+}
+
 p {
-  font-size: 1.4em;
-  margin-bottom: 0;
+  line-height: 1.65;
 }
 
-/* Background picture */
-.background-picture::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -5px;
-  width: 100%;
-  max-width: 100vw;
-  height: 4.7rem;
-  background: url("../assets/images/wave-large.png") center no-repeat;
-  background-size: cover;
+.facts {
+  margin: 16px 0 0;
+  border-top: 1px solid var(--c-line);
 }
 
-.background-picture {
-  width: 100%;
-  max-width: 100vw;
-  height: 45vh;
-  background: linear-gradient(135deg, rgba(80, 100, 131, 0.5) 0%, rgba(40, 56, 149, 0.8) 100%), center no-repeat;
-  background-size: cover;
-  position: relative;
+.facts > div {
+  display: grid;
+  gap: 4px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--c-line);
 }
 
-/* Footer */
-footer {
-  padding: 1rem 0;
-  margin-top: 70px;
-  background-color: #7D88B5;
-  text-align: center;
-  color: white;
+.facts dt {
+  font-weight: 600;
 }
 
-footer p {
-  font-size: 1rem;
+.facts dd {
+  margin: 0;
+  color: var(--c-ink-2);
 }
 
-/* Animation */
-@-webkit-keyframes shake {
-  from {
-    -webkit-transform: rotate(3deg);
-  }
-
-  to {
-    -webkit-transform: rotate(-3deg);
-    -webkit-transform-origin: center center;
-  }
-}
-
-/* Screen Resolution with min-width: 700px */
-@media screen and (min-width: 768px) {
-  .background-picture::before {
-    height: 6.5rem;
-  }
-}
-
-/* Screen Resolution with min-width: 950px */
-@media screen and (min-width: 950px) {
-  .background-picture {
-    height: 22.7rem;
-  }
-
-  .background-picture::before {
-    height: 9.7rem;
-  }
-
-  .main-message {
-    transform: translateY(30%);
-  }
-
-  .main-message h1 {
-    font-size: 3.0rem;
-  }
-}
-
-/* Screen Resolution with min-width: 1200px */
-@media screen and (min-width: 1100px) {
-  .background-picture {
-    height: 23.7rem;
-  }
-
-  .background-picture::before {
-    height: 13.7rem;
-  }
-
-  .main-message h1 {
-    font-size: 3.0rem;
+@media (min-width: 768px) {
+  .facts > div {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 24px;
   }
 }
 </style>

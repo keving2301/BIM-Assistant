@@ -1,4 +1,5 @@
-# Netlify build for the static Nuxt 2 site (nuxt generate). Node 22 builds it with Nuxt 2.18 and webpack 4.
+# Netlify build for the static Nuxt 2 site (nuxt generate) and the functions that talk to Autodesk Platform Services.
+# Node 22 builds it with Nuxt 2.18 and webpack 4.
 [build]
   command = "npm run generate"
   publish = "dist"
@@ -8,6 +9,14 @@
   # Netlify's secret scan stops the build at the Firebase web API key (it starts with "AIza"). That key is public by
   # design: every visitor's browser receives it, and firestore.rules protects the data. Only this value is skipped.
   SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyCpHKkQlnumWZG-N3c3M7AqpUchlkYviBM"
+
+# APS_CLIENT_ID and APS_CLIENT_SECRET are set in the Netlify UI as secret variables scoped to functions.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Local check of the built site with its functions (reads .env): npm run generate, then
+# netlify dev --offline --dir dist --framework "#static"
 
 # The signed-in pages (projects, profile, viewer) are rendered in the browser: any address without a file gets the
 # app shell, so a direct visit or a refresh works instead of a 404.

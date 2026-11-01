@@ -1,214 +1,285 @@
 <template>
-  <div class="profile">
-    <!-- Top section -->
-    <section class="background-picture">
-      <!-- Navbar -->
-      <navbar :on_profile="true"></navbar>
-      <div class="main-message w-100">
-        <!-- Title -->
-        <h1 class="text-lg-center">My Profile</h1>
-      </div>
-    </section>
-
-    <div class="row container justify-content-center" style="padding: 0">
-      <!-- Display user info -->
-      <div class="m-3 p-5 bg-light col" style="width: 100%; height: 12rem; border-radius: 30px">
-        <h5><ion-icon name="person-outline"></ion-icon>{{ userName || 'No Name Set' }}</h5>
-        <h5><ion-icon name="business-outline"></ion-icon>{{ companyName || 'No Company Name Set' }}</h5>
-        <h5><ion-icon name="briefcase-outline"></ion-icon>{{ userRole || 'No Role Set'}}</h5>
-        <h5><ion-icon name="call-outline"></ion-icon>{{ phone || 'No Phone Number Set' }}</h5>
-        <h5><ion-icon name="mail-outline"></ion-icon>{{ userEmail || 'No Email Set' }}</h5>
-        <div v-if="userRole==='Construction Manager'"></div>
-      </div>
-
-      <!-- Display Projects under user -->
-      <div class="m-3 p-5 bg-light col" style="width: 100%; height: auto; border-radius: 30px">
-        <h5><ion-icon name="cube-outline"></ion-icon>List of Projects</h5>
-        <div class="align-content-center justify-content-center d-flex">
-          <div v-for="(project, idx) of project_list" :key="idx" class="card m-3 mt-5 col-2">
-            <nuxt-link class="card-title w-100 h-100 font-weight-bold" to="viewer">
-              <div class="card-body">
-                <h6 class="text-center mx-0">{{ project }}</h6>
-                <hr class="border-top"/>
-                <img alt="Project Image" class="img-responsive w-100"
-                     src="../assets/images/house-3D-model.jpg" style="border-radius: 20px"/>
-                <p class="text-muted card-text mt-3" style="font-size: 14px">URN: xxxyyyzzz</p>
-              </div>
-            </nuxt-link>
-          </div>
+  <div class="app-canvas">
+    <div class="page-container">
+      <header class="page-header">
+        <div>
+          <h1>Profile</h1>
+          <p>Your details and a list of your projects.</p>
         </div>
+      </header>
+
+      <b-alert :show="!!loadError" variant="danger" role="alert">{{ loadError }}</b-alert>
+
+      <div class="profile-grid">
+        <section class="panel profile-panel" aria-labelledby="details-heading">
+          <h2 id="details-heading" class="panel-title">Your details</h2>
+          <p v-if="!loaded" class="muted-line"><b-spinner small class="mr-2" />Loading your profile</p>
+          <b-form v-else novalidate @submit.prevent="save">
+            <b-form-group label="Full name" label-for="name" :state="state('name')" :invalid-feedback="errors.name">
+              <b-form-input id="name" v-model.trim="form.name" autocomplete="name" :state="state('name')" />
+            </b-form-group>
+            <b-form-group label="Email" label-for="email" description="The email you sign in with.">
+              <b-form-input id="email" :value="email" type="email" readonly plaintext class="plaintext-field" />
+            </b-form-group>
+            <b-form-group label="Company" label-for="company" :state="state('company')" :invalid-feedback="errors.company">
+              <b-form-input id="company" v-model.trim="form.company" autocomplete="organization" :state="state('company')" />
+            </b-form-group>
+            <div class="form-row">
+              <b-form-group class="col-sm-6" label="Role" label-for="role">
+                <b-form-select id="role" v-model="form.role" :options="roles" />
+              </b-form-group>
+              <b-form-group class="col-sm-6" label-for="phone" :state="state('phone')" :invalid-feedback="errors.phone">
+                <template #label>Phone <span class="optional">(optional)</span></template>
+                <b-form-input id="phone" v-model.trim="form.phone" type="tel" autocomplete="tel" :state="state('phone')" />
+              </b-form-group>
+            </div>
+            <div class="form-actions">
+              <b-button type="submit" variant="primary" :disabled="saving || !dirty">
+                <b-spinner v-if="saving" small class="mr-2" label="Saving" />{{ saving ? 'Saving' : 'Save changes' }}
+              </b-button>
+              <span v-if="savedAt && !dirty" class="saved-note" role="status">
+                <b-icon-check-circle-fill aria-hidden="true" class="mr-1" />Changes saved
+              </span>
+            </div>
+          </b-form>
+        </section>
+
+        <section class="panel profile-panel" aria-labelledby="projects-heading">
+          <div class="panel-title-row">
+            <h2 id="projects-heading" class="panel-title">Projects</h2>
+            <nuxt-link to="/projects" class="small-link">Manage projects</nuxt-link>
+          </div>
+          <p v-if="projects === null" class="muted-line"><b-spinner small class="mr-2" />Loading projects</p>
+          <p v-else-if="!projects.length" class="muted-line">No projects yet. <nuxt-link to="/projects" class="ml-1">Create one</nuxt-link></p>
+          <ul v-else class="project-list">
+            <li v-for="project in projects" :key="project.id">
+              <nuxt-link :to="{ path: '/viewer', query: { project: project.id } }">{{ project.name }}</nuxt-link>
+              <span class="project-date">Created {{ formatDate(project.createdAt) }}</span>
+            </li>
+          </ul>
+          <p v-if="memberSince" class="member-since">Member since {{ memberSince }}</p>
+        </section>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import navbar from "@/components/navbar";
+import { formatDate } from '~/utils/format'
+import { ROLES } from '~/utils/roles'
 
 export default {
-  name: "profile",
-  components: {navbar},
-  computed: {
-    user() {
-      return this.$store.state.user.user
-    }
-  },
+  name: 'Profile',
   data() {
     return {
-      userRole: '',
-      companyName: '',
-      phone: '',
-      userName: '',
-      userEmail: '',
-      on_manager: Boolean,
-      project_list: []
+      form: { name: '', company: '', role: null, phone: '' },
+      original: null,
+      loaded: false,
+      loadError: '',
+      saving: false,
+      savedAt: null,
+      submitted: false,
+      projects: null,
+      memberSince: ''
     }
   },
-  firestore() {
-    const userdataRef = this.$fireStore.collection('userdata').doc(this.user.data.uid)
-    userdataRef.onSnapshot((docSnapshot) => {
-      this.userRole = docSnapshot.data()['userRole']
-      this.companyName = docSnapshot.data()['companyName']
-      this.phone = docSnapshot.data()['userPhoneNumber']
-      this.userName = docSnapshot.data()['username']
-      this.userEmail = docSnapshot.data()['userEmail']
-      this.project_list = docSnapshot.data()['projects']
-      if (this.userRole == null) {
-        this.userRole = "Software Engineer"
-      }
-      const bucketRef = this.$fireStore.collection('userdata').doc(this.user.data.uid).collection('buckets')
-      bucketRef.onSnapshot(buckets => {
-        for (let i = 0; i < buckets.docs.length; ++i) {
-          if (!this.project_list.includes(buckets.docs[i].id)) {
-            this.project_list.push(buckets.docs[i].id)
-          }
-        }
-      })
-    })
-    //const companyEmployees = db.collection('userdata')
-  },
   head: {
-    title: 'BIM - Profile'
+    title: 'Profile'
+  },
+  computed: {
+    uid() {
+      const data = this.$store.state.user.user.data
+      return data && data.uid
+    },
+    email() {
+      const data = this.$store.state.user.user.data
+      return (data && data.email) || ''
+    },
+    roles() {
+      return [{ value: null, text: 'Choose a role', disabled: true }, ...ROLES]
+    },
+    errors() {
+      return {
+        name: this.form.name ? '' : 'Enter your name.',
+        company: this.form.company ? '' : 'Enter your company name.',
+        phone: !this.form.phone || /^[+()\d\s.-]{7,20}$/.test(this.form.phone) ? '' : 'Enter a valid phone number.'
+      }
+    },
+    dirty() {
+      return this.original && JSON.stringify(this.form) !== JSON.stringify(this.original)
+    }
+  },
+  mounted() {
+    if (this.uid) this.load()
+  },
+  methods: {
+    formatDate,
+    state(field) {
+      return this.submitted && this.errors[field] ? false : null
+    },
+    async load() {
+      const userRef = this.$fireStore.collection('userdata').doc(this.uid)
+      try {
+        const [doc, projects] = await Promise.all([userRef.get(), userRef.collection('buckets').orderBy('createdAt', 'desc').get()])
+        const data = doc.exists ? doc.data() : {}
+        const authUser = this.$fireAuth.currentUser
+        this.form = {
+          name: data.username || (authUser && authUser.displayName) || '',
+          company: data.companyName || '',
+          role: data.userRole && ROLES.includes(data.userRole) ? data.userRole : null,
+          phone: data.userPhoneNumber || ''
+        }
+        this.original = { ...this.form }
+        this.memberSince = authUser && authUser.metadata.creationTime ? formatDate(authUser.metadata.creationTime) : ''
+        this.projects = projects.docs.map((d) => ({ id: d.id, ...d.data() }))
+      } catch (err) {
+        console.error(err)
+        this.loadError = 'Your profile could not be loaded.'
+        this.projects = this.projects || []
+      } finally {
+        this.loaded = true
+      }
+    },
+    async save() {
+      this.submitted = true
+      if (Object.values(this.errors).some(Boolean)) return
+      this.saving = true
+      try {
+        await this.$fireStore.collection('userdata').doc(this.uid).set(
+          {
+            username: this.form.name,
+            userEmail: this.email,
+            companyName: this.form.company,
+            userRole: this.form.role,
+            userPhoneNumber: this.form.phone || null
+          },
+          { merge: true }
+        )
+        const authUser = this.$fireAuth.currentUser
+        if (authUser && authUser.displayName !== this.form.name) {
+          await authUser.updateProfile({ displayName: this.form.name })
+          this.$store.commit('user/SET_DISPLAY_NAME', this.form.name)
+        }
+        this.original = { ...this.form }
+        this.savedAt = Date.now()
+      } catch (err) {
+        console.error(err)
+        this.$bvToast.toast('Your changes were not saved. Try again.', {
+          title: 'Not saved',
+          variant: 'danger',
+          toaster: 'b-toaster-bottom-left',
+          solid: true
+        })
+      } finally {
+        this.saving = false
+      }
+    }
   }
 }
 </script>
 
 <style scoped>
-/* Background picture */
-.background-picture::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -5px;
-  width: 100%;
-  height: 4.7rem;
-  background: url(../assets/images/wave-large.png) center no-repeat;
-  background-size: cover;
+.profile-grid {
+  display: grid;
+  gap: 24px;
+  padding-bottom: 64px;
+  align-items: start;
 }
 
-.background-picture {
-  width: 100%;
-  height: 45vh;
-  background: linear-gradient(135deg, rgba(80, 100, 131, 0.5) 0%, rgba(40, 56, 149, 0.8) 100%),
-  url("../assets/images/construction.jpg") center no-repeat;
-  background-size: cover;
-  position: relative;
+.profile-panel {
+  padding: 24px;
 }
 
-/* Title */
-h5 {
-  margin-bottom: 1rem;
-  margin-left: 2rem;
-  font-family: "Roboto", sans-serif;
+.panel-title {
+  font-size: 1.125rem;
+  margin: 0 0 20px;
 }
 
-/* Icon */
-ion-icon {
-  margin-right: 3rem;
+.panel-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-/* Descriptive card */
-.card {
-  border-radius: 10px;
-  box-shadow: 0 1px 15px 1px rgba(0, 0, 0, 0.04), 0 1px 6px rgba(0, 0, 0, 0.04);
+.small-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.plaintext-field {
+  height: auto;
+  padding: 0;
   border: 0;
-  transition: all .15s ease-in;
-  min-width: 180px !important;
-  min-height: 250px !important;
-  text-align: center;
+  color: var(--c-ink);
 }
 
-.card:hover {
-  box-shadow: 0 10px 16px rgba(0, 0, 0, 0.2);
-  text-decoration: none !important;
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
 }
 
-.card-title {
-  font-size: 1.1rem;
-  text-decoration: none !important;
-  color: black;
-  text-align: center;
+.saved-note {
+  display: inline-flex;
+  align-items: center;
+  color: var(--c-success);
+  font-size: 0.9375rem;
+  font-weight: 500;
 }
 
-/* Animation */
-@-webkit-keyframes shake {
-  from {
-    -webkit-transform: rotate(3deg);
-  }
-
-  to {
-    -webkit-transform: rotate(-3deg);
-    -webkit-transform-origin: center center;
-  }
+.muted-line {
+  display: flex;
+  align-items: center;
+  color: var(--c-muted);
+  font-size: 0.9375rem;
+  margin: 0;
 }
 
-
-/* Screen Resolution with min-width: 700px */
-@media screen and (min-width: 768px) {
-  .background-picture::before {
-    height: 6.5rem;
-  }
-
-  .main-message {
-    transform: translateY(50%);
-  }
+.optional {
+  color: var(--c-muted);
+  font-weight: 400;
 }
 
-/* Screen Resolution with min-width: 950px */
-@media screen and (min-width: 950px) {
-  .background-picture {
-    height: 22.7rem;
-  }
-
-  .background-picture::before {
-    height: 9.7rem;
-  }
-
-  .main-message {
-    transform: translateY(30%);
-  }
-
-  .main-message h1 {
-    font-size: 3.0rem;
-  }
+.project-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--c-line);
 }
 
-/* Screen Resolution with min-width: 1200px */
-@media screen and (min-width: 1100px) {
-  .background-picture {
-    height: 23.7rem;
+.project-list li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--c-line);
+}
+
+.project-list a {
+  font-weight: 500;
+}
+
+.project-date {
+  color: var(--c-muted);
+  font-size: 0.875rem;
+}
+
+.member-since {
+  margin: 20px 0 0;
+  color: var(--c-muted);
+  font-size: 0.875rem;
+}
+
+@media (min-width: 992px) {
+  .profile-grid {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   }
 
-  .background-picture::before {
-    height: 13.7rem;
-  }
-
-  .main-message h1 {
-    font-size: 2.7rem;
-  }
-
-  .main-message h5 {
-    font-size: 1.2rem;
+  .profile-panel {
+    padding: 32px;
   }
 }
 </style>

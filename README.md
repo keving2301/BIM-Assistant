@@ -35,6 +35,13 @@ is in `netlify/lib/demo.mjs` and `firestore.rules`):
 - `firestore.rules` allows reads under its `userdata/{uid}` but no writes.
 - The app disables those controls and says so once on each page (`components/DemoNote.vue`).
 
+Firebase Auth lets a signed-in user change their own email and password through Google's public API, which nothing in
+the app can block. `netlify/functions/demo-reset.mjs` is a scheduled function (hourly, UTC) that sets the demo account's
+email, password and name back. It signs in as the service account `demo-reset@bim-virtual-assistant-kg.iam.gserviceaccount.com`
+(role: Firebase Authentication Admin) whose private key is the secret Netlify environment variable `DEMO_RESET_KEY`
+(scope: functions) beside `DEMO_RESET_EMAIL`; neither is in the repository. To rotate the key: create a new one for that
+service account, replace the variable, delete the old key.
+
 Viewing, the model summary and the chat keep working. Sign-up is open, so anyone can try uploads with their own account
 (the per-account limits in `netlify/lib/aps.mjs` still apply).
 

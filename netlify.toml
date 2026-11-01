@@ -5,6 +5,9 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # Netlify's secret scan stops the build at the Firebase web API key (it starts with "AIza"). That key is public by
+  # design: every visitor's browser receives it, and firestore.rules protects the data. Only this value is skipped.
+  SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyCpHKkQlnumWZG-N3c3M7AqpUchlkYviBM"
 
 # The signed-in pages (projects, profile, viewer) are rendered in the browser: any address without a file gets the
 # app shell, so a direct visit or a refresh works instead of a 404.

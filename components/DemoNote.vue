@@ -75,6 +75,13 @@ export default {
   font-size: 0.875rem;
 }
 
+@media (max-width: 767px) {
+  /* The chat button floats over the bottom right corner of the page; keep the text clear of it. */
+  .demo-note.compact .demo-note-text {
+    padding-right: 56px;
+  }
+}
+
 .demo-note-text strong {
   color: var(--c-ink);
   font-weight: 600;

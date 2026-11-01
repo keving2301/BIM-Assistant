@@ -94,7 +94,9 @@ export default {
 
   plugins: ['@/plugins/auth-guard.client.js'],
 
+  // about.html rather than about/index.html: Netlify then serves /about directly instead of redirecting to /about/.
   generate: {
+    subFolders: false,
     fallback: '200.html'
   }
 }

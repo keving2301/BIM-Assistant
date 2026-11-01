@@ -3,11 +3,13 @@
 // The bucket key is derived from the verified uid and the project id, so a user only reaches their own buckets.
 import { route, json, readJson } from '../lib/http.mjs'
 import { requireUser } from '../lib/firebase-auth.mjs'
+import { refuseDemo } from '../lib/demo.mjs'
 import { aps, bucketKeyFor, deleteManifest, ensureProjectBucket, listObjects, requireProjectId, urnFor } from '../lib/aps.mjs'
 
 export default route({
   async POST(req) {
     const user = await requireUser(req)
+    refuseDemo(user, 'createProject')
     const { projectId } = await readJson(req)
     const { bucketKey, created } = await ensureProjectBucket(user.uid, requireProjectId(projectId))
     return json(created ? 201 : 200, { bucketKey })
@@ -15,6 +17,7 @@ export default route({
 
   async DELETE(req) {
     const user = await requireUser(req)
+    refuseDemo(user, 'deleteProject')
     const projectId = requireProjectId(new URL(req.url).searchParams.get('projectId'))
     const bucketKey = bucketKeyFor(user.uid, projectId)
     const objects = await listObjects(bucketKey)

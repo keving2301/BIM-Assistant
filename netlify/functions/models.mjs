@@ -2,6 +2,7 @@
 // DELETE /.netlify/functions/models?projectId=&objectKey=  deletes one model and its translation
 import { route, json } from '../lib/http.mjs'
 import { requireUser } from '../lib/firebase-auth.mjs'
+import { refuseDemo } from '../lib/demo.mjs'
 import {
   aps, bucketKeyFor, deleteManifest, listObjects, manifestSummary, requireObjectKey, requireProjectId, urnFor
 } from '../lib/aps.mjs'
@@ -24,6 +25,7 @@ export default route({
 
   async DELETE(req) {
     const user = await requireUser(req)
+    refuseDemo(user, 'deleteModel')
     const params = new URL(req.url).searchParams
     const bucketKey = bucketKeyFor(user.uid, requireProjectId(params.get('projectId')))
     const objectKey = requireObjectKey(params.get('objectKey'))

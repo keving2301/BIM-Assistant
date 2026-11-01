@@ -9,6 +9,7 @@
       </div>
 
       <template v-if="project">
+        <DemoNote compact>Uploading and deleting models are turned off here.</DemoNote>
         <section class="sidebar-section">
           <button
             class="section-toggle"
@@ -38,7 +39,7 @@
                 <b-progress :value="upload.phase === 'uploading' ? upload.percent : 100" :animated="upload.phase !== 'uploading'" />
                 <p class="upload-phase">{{ upload.phase === 'uploading' ? 'Uploading' : 'Starting the translation' }}</p>
               </div>
-              <b-button v-else variant="outline-secondary" block class="upload-button" :disabled="!models" @click="$refs.file.click()">
+              <b-button v-else variant="outline-secondary" block class="upload-button" :disabled="!models || isDemo" @click="$refs.file.click()">
                 <b-icon-cloud-upload aria-hidden="true" class="mr-2" />Upload a model
               </b-button>
               <p class="upload-hint">Revit, IFC, Navisworks, DWG, SketchUp, FBX, OBJ or STEP, up to 150 MB.</p>
@@ -62,7 +63,13 @@
                       <span class="model-size">{{ fileType(model.objectKey) }}, {{ formatBytes(model.size) }}</span>
                     </span>
                   </button>
-                  <button class="btn-icon model-delete" :aria-label="`Delete ${model.objectKey}`" @click="confirmDeleteModel(model)">
+                  <button
+                    class="btn-icon model-delete"
+                    :aria-label="`Delete ${model.objectKey}`"
+                    :disabled="isDemo"
+                    :title="isDemo ? 'Not available in the demo account' : null"
+                    @click="confirmDeleteModel(model)"
+                  >
                     <b-icon-trash aria-hidden="true" />
                   </button>
                 </li>
@@ -181,7 +188,7 @@
           <BrandMark class="stage-mark" />
           <h2>Upload a model to start</h2>
           <p>Add a building model to this project. It is translated for the browser, then you can explore it in 3D and ask the assistant about it.</p>
-          <b-button variant="primary" @click="$refs.file.click()"><b-icon-cloud-upload aria-hidden="true" class="mr-2" />Upload a model</b-button>
+          <b-button variant="primary" :disabled="isDemo" @click="$refs.file.click()"><b-icon-cloud-upload aria-hidden="true" class="mr-2" />Upload a model</b-button>
         </template>
       </div>
     </div>
@@ -270,6 +277,9 @@ export default {
     uid() {
       const data = this.$store.state.user.user.data
       return data && data.uid
+    },
+    isDemo() {
+      return this.$store.getters['user/isDemo']
     },
     projectId() {
       return this.$route.query.project
@@ -566,6 +576,7 @@ export default {
 .back-link {
   display: inline-flex;
   align-items: center;
+  min-height: 44px;
   gap: 4px;
   margin-left: -4px;
   font-size: 0.875rem;

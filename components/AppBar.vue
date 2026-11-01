@@ -157,8 +157,10 @@ export default {
 }
 
 .nav-link-item {
-  display: block;
-  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
   color: var(--c-ink-2);
   font-weight: 500;
   font-size: 0.9375rem;

@@ -13,8 +13,8 @@
               <b-button to="/projects" variant="primary" size="lg">Open your projects</b-button>
             </template>
             <template v-else>
-              <b-button to="/sign_up" variant="primary" size="lg">Create an account</b-button>
-              <b-button to="/sign_in" variant="outline-secondary" size="lg">Sign in</b-button>
+              <b-button to="/sign_in" variant="primary" size="lg">Try the demo</b-button>
+              <b-button to="/sign_up" variant="outline-secondary" size="lg">Create an account</b-button>
             </template>
           </div>
         </div>

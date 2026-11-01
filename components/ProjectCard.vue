@@ -24,7 +24,13 @@
             <span class="visually-hidden">Actions for {{ project.name }}</span>
           </template>
           <b-dropdown-item :to="{ path: '/viewer', query: { project: project.id } }">Open</b-dropdown-item>
-          <b-dropdown-item link-class="text-danger" @click="$emit('delete', project)">Delete project</b-dropdown-item>
+          <b-dropdown-item
+            :link-class="isDemo ? '' : 'text-danger'"
+            :disabled="isDemo"
+            @click="$emit('delete', project)"
+          >
+            {{ isDemo ? 'Delete (not in the demo account)' : 'Delete project' }}
+          </b-dropdown-item>
         </b-dropdown>
       </div>
       <p v-if="project.description" class="project-description">{{ project.description }}</p>
@@ -53,6 +59,9 @@ export default {
     thumbnail: { type: String, default: null }
   },
   computed: {
+    isDemo() {
+      return this.$store.getters['user/isDemo']
+    },
     created() {
       return formatDate(this.project.createdAt)
     },

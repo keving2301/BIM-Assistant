@@ -2,6 +2,7 @@
 // POST /.netlify/functions/translate { projectId, objectKey }  translates the model again
 import { route, json, readJson, HttpError } from '../lib/http.mjs'
 import { requireUser } from '../lib/firebase-auth.mjs'
+import { refuseDemo } from '../lib/demo.mjs'
 import {
   aps, bucketKeyFor, manifestSummary, requireObjectKey, requireProjectId, startTranslation, urnFor
 } from '../lib/aps.mjs'
@@ -17,6 +18,7 @@ export default route({
 
   async POST(req) {
     const user = await requireUser(req)
+    refuseDemo(user, 'translate')
     const body = await readJson(req)
     const bucketKey = bucketKeyFor(user.uid, requireProjectId(body.projectId))
     const objectKey = requireObjectKey(body.objectKey)

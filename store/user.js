@@ -1,3 +1,5 @@
+import { DEMO_UID } from '~/utils/demo'
+
 export const state = () => ({
   user: {
     loggedIn: false,
@@ -8,6 +10,9 @@ export const state = () => ({
 export const getters = {
   user(state) {
     return state.user
+  },
+  isDemo(state) {
+    return !!(state.user.data && state.user.data.uid === DEMO_UID)
   }
 }
 

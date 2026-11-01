@@ -24,6 +24,20 @@ Live: https://bim-virtual-assistant.netlify.app
 - **Assistant:** Dialogflow Messenger. The agent recognizes the question (HowManyWalls, SizeOfRoom and so on) and the
   app answers it from the open model (`utils/assistant.js`, `utils/model-index.js`).
 
+## The demo account
+
+The sign-in page shows the credentials of a demo account and a button that signs in with them. It holds invented data:
+a project with an apartment block model that is already translated, and an empty one. Anyone can use it, so the server
+refuses what would use up the Autodesk free tier or change what the next visitor finds. For the demo account (its uid
+is in `netlify/lib/demo.mjs` and `firestore.rules`):
+
+- `projects` (create, delete), `upload`, `translate` (POST) and `models` (DELETE) answer 403 with a clear message.
+- `firestore.rules` allows reads under its `userdata/{uid}` but no writes.
+- The app disables those controls and says so once on each page (`components/DemoNote.vue`).
+
+Viewing, the model summary and the chat keep working. Sign-up is open, so anyone can try uploads with their own account
+(the per-account limits in `netlify/lib/aps.mjs` still apply).
+
 ## Run it locally
 
 ```

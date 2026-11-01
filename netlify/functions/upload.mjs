@@ -6,6 +6,7 @@
 // The file bytes never pass through the function (its request body is limited to 6 MB).
 import { route, json, readJson, HttpError } from '../lib/http.mjs'
 import { requireUser } from '../lib/firebase-auth.mjs'
+import { refuseDemo } from '../lib/demo.mjs'
 import {
   aps, bucketKeyFor, ensureProjectBucket, LIMITS, listObjects, objectKeyFromFileName, requireObjectKey,
   requireProjectId, startTranslation, urnFor
@@ -58,6 +59,7 @@ async function complete(user, body) {
 export default route({
   async POST(req) {
     const user = await requireUser(req)
+    refuseDemo(user, 'upload')
     const body = await readJson(req)
     if (body.action === 'start') return start(user, body)
     if (body.action === 'complete') return complete(user, body)

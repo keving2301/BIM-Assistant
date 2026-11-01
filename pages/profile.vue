@@ -10,31 +10,36 @@
 
       <b-alert :show="!!loadError" variant="danger" role="alert">{{ loadError }}</b-alert>
 
+      <DemoNote v-if="loaded">
+        You can look at the profile and the project list. Editing the profile, the email and the password are turned
+        off here.
+      </DemoNote>
+
       <div class="profile-grid">
         <section class="panel profile-panel" aria-labelledby="details-heading">
           <h2 id="details-heading" class="panel-title">Your details</h2>
           <p v-if="!loaded" class="muted-line"><b-spinner small class="mr-2" />Loading your profile</p>
           <b-form v-else novalidate @submit.prevent="save">
             <b-form-group label="Full name" label-for="name" :state="state('name')" :invalid-feedback="errors.name">
-              <b-form-input id="name" v-model.trim="form.name" autocomplete="name" :state="state('name')" />
+              <b-form-input id="name" v-model.trim="form.name" autocomplete="name" :state="state('name')" :disabled="isDemo" />
             </b-form-group>
             <b-form-group label="Email" label-for="email" description="The email you sign in with.">
               <b-form-input id="email" :value="email" type="email" readonly plaintext class="plaintext-field" />
             </b-form-group>
             <b-form-group label="Company" label-for="company" :state="state('company')" :invalid-feedback="errors.company">
-              <b-form-input id="company" v-model.trim="form.company" autocomplete="organization" :state="state('company')" />
+              <b-form-input id="company" v-model.trim="form.company" autocomplete="organization" :state="state('company')" :disabled="isDemo" />
             </b-form-group>
             <div class="form-row">
               <b-form-group class="col-sm-6" label="Role" label-for="role">
-                <b-form-select id="role" v-model="form.role" :options="roles" />
+                <b-form-select id="role" v-model="form.role" :options="roles" :disabled="isDemo" />
               </b-form-group>
               <b-form-group class="col-sm-6" label-for="phone" :state="state('phone')" :invalid-feedback="errors.phone">
                 <template #label>Phone <span class="optional">(optional)</span></template>
-                <b-form-input id="phone" v-model.trim="form.phone" type="tel" autocomplete="tel" :state="state('phone')" />
+                <b-form-input id="phone" v-model.trim="form.phone" type="tel" autocomplete="tel" :state="state('phone')" :disabled="isDemo" />
               </b-form-group>
             </div>
             <div class="form-actions">
-              <b-button type="submit" variant="primary" :disabled="saving || !dirty">
+              <b-button type="submit" variant="primary" :disabled="saving || !dirty || isDemo">
                 <b-spinner v-if="saving" small class="mr-2" label="Saving" />{{ saving ? 'Saving' : 'Save changes' }}
               </b-button>
               <span v-if="savedAt && !dirty" class="saved-note" role="status">
@@ -90,6 +95,9 @@ export default {
     uid() {
       const data = this.$store.state.user.user.data
       return data && data.uid
+    },
+    isDemo() {
+      return this.$store.getters['user/isDemo']
     },
     email() {
       const data = this.$store.state.user.user.data
@@ -203,6 +211,9 @@ export default {
 }
 
 .small-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   font-size: 0.875rem;
   font-weight: 500;
 }
@@ -253,12 +264,16 @@ export default {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  align-items: center;
   gap: 4px 16px;
-  padding: 12px 0;
+  padding: 0;
   border-bottom: 1px solid var(--c-line);
 }
 
 .project-list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   font-weight: 500;
 }
 

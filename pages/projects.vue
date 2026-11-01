@@ -6,10 +6,12 @@
           <h1>Projects</h1>
           <p>Each project holds the models of one building.</p>
         </div>
-        <b-button v-if="projects && projects.length" variant="primary" @click="openCreate">
+        <b-button v-if="projects && projects.length" variant="primary" :disabled="isDemo" @click="openCreate">
           <b-icon-plus aria-hidden="true" class="mr-1" />New project
         </b-button>
       </header>
+
+      <DemoNote v-if="projects" />
 
       <b-alert :show="!!loadError" variant="danger" role="alert">
         {{ loadError }}
@@ -28,7 +30,7 @@
         <b-icon-folder-plus class="empty-icon" aria-hidden="true" />
         <h2>No projects yet</h2>
         <p>Create a project, then upload a Revit, IFC or other model file to explore it in 3D and ask the assistant about it.</p>
-        <b-button variant="primary" @click="openCreate">Create a project</b-button>
+        <b-button variant="primary" :disabled="isDemo" @click="openCreate">Create a project</b-button>
       </section>
 
       <div v-else-if="projects" class="project-grid">
@@ -122,6 +124,9 @@ export default {
     uid() {
       const data = this.$store.state.user.user.data
       return data && data.uid
+    },
+    isDemo() {
+      return this.$store.getters['user/isDemo']
     },
     nameError() {
       if (!this.draft.name) return 'Enter a project name.'

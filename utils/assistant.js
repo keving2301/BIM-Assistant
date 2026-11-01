@@ -2,6 +2,8 @@
 // SizeOfRoom and so on) but has no fulfillment for it, so the answer comes from the model open in the viewer.
 import { plural } from './format'
 
+// The questions to offer: the generic ones before a model is open, then the ones this model can answer (a model with
+// no walls gets no wall question; a mechanical model is asked about its ducts and pipes).
 export const SUGGESTIONS = [
   'How many walls are there?',
   'How many doors are there?',
@@ -11,6 +13,28 @@ export const SUGGESTIONS = [
   'What are the walls made of?',
   'Explode the model'
 ]
+
+export function suggestionsFor(index) {
+  if (!index) return SUGGESTIONS
+  const count = (kind) => (index.groups[kind] || []).length
+  const list = []
+  if (count('walls')) list.push('How many walls are there?')
+  if (count('doors')) list.push('How many doors are there?')
+  if (count('windows')) list.push('How many windows are there?')
+  if (index.levels.length) list.push('How many levels are there?')
+  if (index.rooms.length) {
+    list.push('How many rooms are there?')
+    const named = index.rooms.find((room) => room.area)
+    if (named) list.push(`What is the size of room ${named.label}?`)
+  }
+  if (count('walls')) list.push('What are the walls made of?')
+  if (count('segments')) list.push('How many pipes and ducts are there?')
+  if (count('terminals')) list.push('How many fixtures are there?')
+  if (count('columns')) list.push('How many columns are there?')
+  if (count('beams')) list.push('How many beams are there?')
+  list.push('Explode the model')
+  return list
+}
 
 export const CAPABILITIES =
   'In this viewer I can count the walls, doors, windows, rooms and levels of the open model, give the floor area of a room, list the wall materials and explode the model.'
@@ -28,12 +52,32 @@ const KIND_WORDS = [
   ['doors', /\bdoors?\b/i],
   ['windows', /\bwindows?\b/i],
   ['rooms', /\b(rooms?|spaces?|apartments?|units?)\b/i],
-  ['levels', /\b(levels?|floors?|storeys?|stories|story)\b/i]
+  ['levels', /\b(levels?|floors?|storeys?|stories|story)\b/i],
+  ['slabs', /\bslabs?\b/i],
+  ['columns', /\bcolumns?\b/i],
+  ['beams', /\bbeams?\b/i],
+  ['footings', /\b(footings?|foundations?)\b/i],
+  ['segments', /\b(pipes?|ducts?|ductwork|piping|segments?)\b/i],
+  ['fittings', /\bfittings?\b/i],
+  ['terminals', /\b(terminals?|fixtures?|diffusers?|outlets?)\b/i]
 ]
 
-const UNSUPPORTED_WORDS = /\b(stairs?|staircases?|columns?|beams?|slabs?|tiles?|furniture|roofs?|railings?|pipes?|ducts?)\b/i
+const UNSUPPORTED_WORDS = /\b(stairs?|staircases?|tiles?|furniture|roofs?|railings?)\b/i
 
-const KIND_NAMES = { walls: 'wall', doors: 'door', windows: 'window', rooms: 'room', levels: 'level' }
+const KIND_NAMES = {
+  walls: 'wall',
+  doors: 'door',
+  windows: 'window',
+  rooms: 'room',
+  levels: 'level',
+  slabs: 'slab',
+  columns: 'column',
+  beams: 'beam',
+  footings: 'footing',
+  segments: 'duct and pipe segment',
+  fittings: 'fitting',
+  terminals: 'fixture'
+}
 
 function kindFromText(text) {
   const found = KIND_WORDS.find(([, pattern]) => pattern.test(text))
@@ -42,7 +86,9 @@ function kindFromText(text) {
 
 function listSentence(items) {
   if (items.length <= 1) return items.join('')
-  return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
+  // A material name can hold commas ("Plasterboard, Insulation"), so separate such a list with semicolons.
+  const separator = items.some((item) => item.includes(',')) ? '; ' : ', '
+  return `${items.slice(0, -1).join(separator)} and ${items[items.length - 1]}`
 }
 
 function findRoom(index, text) {
@@ -85,8 +131,17 @@ export function answer(intent, queryText, index) {
 
   if (intent === 'MaterialOfWalls') {
     const materials = index.wallMaterials
-    if (!materials.length) return { text: 'This model does not list materials for its walls.' }
-    const top = materials.slice(0, 4).map((m) => `${m.name} (${plural(m.count, 'wall')})`)
+    if (!materials.length) {
+      // No materials in the file: the wall types say what the walls are built as.
+      const types = index.wallTypes || []
+      if (!types.length) return { text: 'This model does not list materials for its walls.' }
+      const top = types.slice(0, 3).map((t) => `${t.name} (${plural(t.count, 'wall')})`)
+      return {
+        text: `This model does not list materials for its walls, but they come in ${plural(types.length, 'type')}. The most common are ${listSentence(top)}.`,
+        action: { isolate: index.groups.walls }
+      }
+    }
+    const top = materials.slice(0, 3).map((m) => `${m.name} (${plural(m.count, 'wall')})`)
     return {
       text: `The walls use ${plural(materials.length, 'material')}. The most common are ${listSentence(top)}.`,
       action: { isolate: index.groups.walls }

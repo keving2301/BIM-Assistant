@@ -6,7 +6,7 @@
 // The Dialogflow Messenger chat. The agent (Dialogflow ES) recognizes the question; answers about the model are
 // computed here from the viewer (utils/assistant.js) and added to the conversation with renderCustomText.
 import { loadScript } from '~/utils/load-script'
-import { answer, SUGGESTIONS } from '~/utils/assistant'
+import { answer, suggestionsFor } from '~/utils/assistant'
 
 const MESSENGER_SCRIPT = 'https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1'
 const AGENT_ID = '7f4325ae-c139-4a5e-9aa7-78f5e0f92326'
@@ -45,7 +45,7 @@ export default {
       this.$emit('ready')
     },
     renderChips() {
-      this.messenger.renderCustomCard([{ type: 'chips', options: SUGGESTIONS.map((text) => ({ text })) }])
+      this.messenger.renderCustomCard([{ type: 'chips', options: suggestionsFor(this.index).map((text) => ({ text })) }])
     },
     onResponse(event) {
       const result = (event.detail && event.detail.response && event.detail.response.queryResult) || {}
@@ -73,6 +73,7 @@ export default {
         this.$emit('isolated')
       } else if (action.explode) {
         viewer.showAll()
+        if (this.index && this.index.groups.rooms.length) viewer.hide(this.index.groups.rooms)
         viewer.explode(0.5)
         this.$emit('isolated')
       }

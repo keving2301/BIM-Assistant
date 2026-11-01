@@ -41,6 +41,7 @@ const CATEGORY_PROPS = ['Category', 'IfcClass', 'IFC Class', 'Entity', 'IfcEntit
 const AREA_PROPS = ['NetFloorArea', 'Net Floor Area', 'GrossFloorArea', 'Gross Floor Area', 'Area']
 const LEVEL_PROPS = ['Level', 'IfcDecomposes', 'IfcSpatialContainer', 'StoreyName', 'Building Storey', 'Base Constraint', 'Reference Level']
 const MATERIAL_PROPS = ['Material', 'Structural Material', 'Materials', 'Material Name']
+const TYPE_PROPS = ['ObjectType', 'Type Name', 'Type']
 const ROOM_NUMBER_PROPS = ['Number', 'SpaceNumber', 'ComponentName']
 const ROOM_TYPE_PROPS = ['LongName', 'Long Name', 'SpaceName']
 // Room descriptions too generic to identify a room in a question ("what is the area of room 24").
@@ -51,10 +52,21 @@ function cleanName(name) {
   return String(name || '').replace(/^Ifc[A-Za-z]+::/, '').trim()
 }
 
+// "Basic Wall:Exterior - Insul Panel on Mtl. Stud:257918" -> "Exterior - Insul Panel on Mtl. Stud" (a Revit type name
+// carries its family before and its element id after).
+function cleanTypeName(value) {
+  const parts = String(value || '').split(':').map((part) => part.trim()).filter(Boolean)
+  if (parts.length >= 3 && /^\d+$/.test(parts[parts.length - 1])) parts.pop()
+  return (parts.length > 1 ? parts[1] : parts[0]) || ''
+}
+
 function propertyMap(result) {
   const map = {}
   for (const prop of result.properties || []) {
     if (prop.displayValue === '' || prop.displayValue === null || prop.displayValue === undefined) continue
+    // Templates that were exported without filling a field leave the property's own name as its value
+    // ("Material = Material"); that is a blank, not a material.
+    if (String(prop.displayValue).trim().toLowerCase() === String(prop.displayName).trim().toLowerCase()) continue
     if (!(prop.displayName in map)) map[prop.displayName] = prop
   }
   return map
@@ -111,6 +123,7 @@ export async function buildModelIndex(model) {
   const levelNodes = []
   const rooms = []
   const wallMaterials = new Map()
+  const wallTypes = new Map()
 
   // First pass: the kind of every node. Second pass: count an element only when its parent is not of the same
   // kind, so a door made of panel and frame parts counts once.
@@ -156,6 +169,11 @@ export async function buildModelIndex(model) {
         const key = String(material.displayValue)
         wallMaterials.set(key, (wallMaterials.get(key) || 0) + 1)
       }
+      const type = first(props, TYPE_PROPS)
+      if (type) {
+        const key = cleanTypeName(type.displayValue)
+        if (key) wallTypes.set(key, (wallTypes.get(key) || 0) + 1)
+      }
     }
   }
 
@@ -169,6 +187,7 @@ export async function buildModelIndex(model) {
     groups,
     levels,
     rooms,
-    wallMaterials: [...wallMaterials.entries()].sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }))
+    wallMaterials: [...wallMaterials.entries()].sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count })),
+    wallTypes: [...wallTypes.entries()].sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }))
   }
 }

@@ -126,7 +126,7 @@
                 <template v-if="index.rooms.length">
                   <h2 class="subheading">Rooms</h2>
                   <ul class="room-list">
-                    <li v-for="room in index.rooms" :key="room.dbId">
+                    <li v-for="room in visibleRooms" :key="room.dbId">
                       <button class="room-item" @click="focusRoom(room)">
                         <span class="room-name">
                           Room {{ room.label }}<span v-if="room.type" class="room-type">{{ room.type }}</span>
@@ -135,6 +135,9 @@
                       </button>
                     </li>
                   </ul>
+                  <button v-if="index.rooms.length > ROOMS_SHOWN" class="btn btn-link btn-sm rooms-more" @click="allRooms = !allRooms">
+                    {{ allRooms ? 'Show fewer rooms' : `Show all ${index.rooms.length} rooms` }}
+                  </button>
                 </template>
               </template>
             </div>
@@ -232,6 +235,7 @@ import { api } from '~/utils/api'
 import { formatBytes } from '~/utils/format'
 import { ACCEPTED_FILES, fileType, isWorking, translationLabel } from '~/utils/models'
 import { buildModelIndex, EXTRA_KINDS, SUMMARY_KINDS } from '~/utils/model-index'
+import { suggestionsFor } from '~/utils/assistant'
 
 const MAX_BYTES = 150 * 1024 * 1024
 const POLL_MS = 6000
@@ -271,15 +275,8 @@ export default {
       deletingModel: null,
       deleteBusy: false,
       acceptedFiles: ACCEPTED_FILES,
-      suggestedQuestions: [
-        'How many walls are there?',
-        'How many doors are there?',
-        'How many windows are there?',
-        'How many levels are there?',
-        'How many rooms are there?',
-        'What is the size of room 24?',
-        'Explode the model'
-      ]
+      allRooms: false,
+      ROOMS_SHOWN: 12
     }
   },
   head() {
@@ -301,6 +298,13 @@ export default {
     },
     workingModel() {
       return (this.models || []).find((m) => isWorking(m.translation)) || null
+    },
+    suggestedQuestions() {
+      return suggestionsFor(this.index)
+    },
+    visibleRooms() {
+      if (!this.index) return []
+      return this.allRooms ? this.index.rooms : this.index.rooms.slice(0, this.ROOMS_SHOWN)
     },
     extraRows() {
       if (!this.index) return []
@@ -339,7 +343,7 @@ export default {
     },
     reset() {
       clearTimeout(this.pollTimer)
-      Object.assign(this, { project: null, projectError: '', models: null, modelsError: '', activeKey: null, index: null, viewer: null })
+      Object.assign(this, { project: null, projectError: '', models: null, modelsError: '', activeKey: null, index: null, viewer: null, allRooms: false })
     },
     async load() {
       if (!this.projectId) {
@@ -509,6 +513,9 @@ export default {
       this.indexing = true
       try {
         this.index = Object.freeze(await buildModelIndex(model))
+        // Room volumes are boxes that hide the model they sit in (some files draw them although the translation asks to
+        // hide them), so they stay hidden until a room is chosen.
+        if (this.index.groups.rooms.length) viewer.hide(this.index.groups.rooms)
         const frame = this.frameIds()
         if (frame) {
           // Frame the building by its doors and windows rather than the whole site (an IFC file can carry its
@@ -546,6 +553,7 @@ export default {
     showAll() {
       if (!this.viewer) return
       this.viewer.showAll()
+      if (this.index && this.index.groups.rooms.length) this.viewer.hide(this.index.groups.rooms)
       this.viewer.clearSelection()
       this.viewer.explode(0)
       const frame = this.frameIds()
@@ -803,6 +811,11 @@ export default {
   font-size: 0.875rem;
   font-weight: 600;
   margin: 20px 0 8px;
+}
+
+.rooms-more {
+  margin-top: 4px;
+  padding-left: 0;
 }
 
 .room-item {

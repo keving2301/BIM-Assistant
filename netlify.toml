@@ -1,0 +1,14 @@
+# Netlify build for the static Nuxt 2 site (nuxt generate). Node 22 builds it with Nuxt 2.18 and webpack 4.
+[build]
+  command = "npm run generate"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# The signed-in pages (projects, profile, viewer) are rendered in the browser: any address without a file gets the
+# app shell, so a direct visit or a refresh works instead of a 404.
+[[redirects]]
+  from = "/*"
+  to = "/200.html"
+  status = 200

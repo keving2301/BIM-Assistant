@@ -60,7 +60,6 @@ export default {
       phone: '',
       userName: '',
       userEmail: '',
-      userPassword: '',
       on_manager: Boolean,
       project_list: []
     }
@@ -73,7 +72,6 @@ export default {
       this.phone = docSnapshot.data()['userPhoneNumber']
       this.userName = docSnapshot.data()['username']
       this.userEmail = docSnapshot.data()['userEmail']
-      this.userPassword = docSnapshot.data()['userPassword']
       this.project_list = docSnapshot.data()['projects']
       if (this.userRole == null) {
         this.userRole = "Software Engineer"

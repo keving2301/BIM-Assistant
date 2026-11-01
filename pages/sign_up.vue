@@ -126,7 +126,6 @@ export default {
                   userPhoneNumber: this.userPhoneNumber,
                   userRole: this.userRole,
                   username: this.username,
-                  userPassword: this.userPassword,
                   userEmail: this.userEmail,
                   projects: ['Example Project'],
                 }).then(() => {
